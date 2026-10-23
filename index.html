@@ -1,0 +1,2169 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <title>Mastery Pro · Neural English Coach</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        :root {
+            --safe-top: env(safe-area-inset-top, 0px);
+            --safe-bottom: env(safe-area-inset-bottom, 0px);
+            --bg-main: #f8fafc;
+            --bg-card: #ffffff;
+            --text-main: #0f172a;
+            --text-muted: #64748b;
+            --text-dim: #94a3b8;
+            --border: #e2e8f0;
+            --primary: #2563eb;
+            --primary-light: #3b82f6;
+            --primary-dark: #1e40af;
+            --primary-gradient: linear-gradient(135deg, #2563eb 0%, #1e40af 100%);
+            --blue-glow: rgba(37, 99, 235, 0.15);
+            --accent: #f59e0b;
+            --success: #10b981;
+            --danger: #ef4444;
+            --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.04);
+            --shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -2px rgba(0, 0, 0, 0.05);
+            --shadow-lg: 0 10px 25px -5px rgba(0, 0, 0, 0.08);
+            --shadow-blue: 0 10px 25px -5px rgba(37, 99, 235, 0.25);
+            --radius: 16px;
+            --radius-sm: 10px;
+            --header-height: 64px;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            background: var(--bg-main);
+            color: var(--text-main);
+            min-height: 100dvh;
+            overflow-x: hidden;
+            display: flex;
+        }
+
+        /* SIDEBAR */
+        aside {
+            width: 260px;
+            background: var(--bg-card);
+            border-right: 1px solid var(--border);
+            height: 100dvh;
+            position: fixed;
+            top: 0;
+            left: 0;
+            z-index: 100;
+            display: flex;
+            flex-direction: column;
+            padding: calc(24px + var(--safe-top)) 16px 24px;
+            transform: translateX(-100%);
+            transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            box-shadow: var(--shadow-lg);
+        }
+
+        aside.open {
+            transform: translateX(0);
+        }
+
+        @media (min-width: 1024px) {
+            aside {
+                transform: translateX(0);
+                box-shadow: none;
+            }
+
+            .main-wrapper {
+                margin-left: 260px;
+            }
+
+            .hamb-btn,
+            .mobile-float-hamb {
+                display: none !important;
+            }
+        }
+
+        .brand {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 0 12px 24px;
+            border-bottom: 1px solid var(--border);
+            margin-bottom: 24px;
+        }
+
+        .brand-icon {
+            font-size: 28px;
+        }
+
+        .brand-title {
+            font-size: 18px;
+            font-weight: 800;
+            background: var(--primary-gradient);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .nav-links {
+            list-style: none;
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+            flex: 1;
+            overflow-y: auto;
+        }
+
+        .nav-link {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px 16px;
+            border-radius: var(--radius-sm);
+            color: var(--text-muted);
+            font-weight: 600;
+            font-size: 15px;
+            cursor: pointer;
+            transition: all 0.2s;
+            border: 1px solid transparent;
+            background: none;
+            width: 100%;
+            text-align: left;
+        }
+
+        .nav-link:hover {
+            background: #f1f5f9;
+            color: var(--primary);
+        }
+
+        .nav-link.active {
+            background: var(--primary-gradient);
+            color: white;
+            box-shadow: var(--shadow-blue);
+        }
+
+        .sidebar-stats {
+            padding: 16px;
+            border-top: 1px solid var(--border);
+            background: #f8fafc;
+            border-radius: var(--radius-sm);
+            margin-top: 16px;
+        }
+
+        .mini-stat {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 8px;
+            font-size: 13px;
+            color: var(--text-muted);
+        }
+
+        .mini-stat:last-child {
+            margin-bottom: 0;
+        }
+
+        .mini-stat strong {
+            color: var(--text-main);
+        }
+
+        /* MAIN */
+        .main-wrapper {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            min-height: 100dvh;
+            position: relative;
+            z-index: 1;
+            width: 100%;
+        }
+
+        header {
+            height: var(--header-height);
+            padding: 0 24px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            background: var(--bg-card);
+            border-bottom: 1px solid var(--border);
+            position: sticky;
+            top: 0;
+            z-index: 50;
+        }
+
+        @media (max-width: 1023px) {
+            header {
+                display: none;
+            }
+        }
+
+        .hamb-btn {
+            width: 40px;
+            height: 40px;
+            border-radius: 8px;
+            background: var(--bg-main);
+            border: 1px solid var(--border);
+            display: grid;
+            place-items: center;
+            font-size: 18px;
+            cursor: pointer;
+        }
+
+        .header-title {
+            font-size: 18px;
+            font-weight: 700;
+        }
+
+        .header-stats {
+            display: flex;
+            gap: 12px;
+        }
+
+        .stat-pill {
+            padding: 6px 14px;
+            border-radius: 20px;
+            font-size: 13px;
+            font-weight: 700;
+            background: #f1f5f9;
+            border: 1px solid var(--border);
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .stat-pill.xp {
+            color: white;
+            background: var(--primary-gradient);
+            border: none;
+        }
+
+        .stat-pill.streak {
+            color: var(--accent);
+            background: rgba(245, 158, 11, 0.1);
+            border-color: rgba(245, 158, 11, 0.2);
+        }
+
+        .content-body {
+            flex: 1;
+            padding: 24px;
+            max-width: 1200px;
+            width: 100%;
+            margin: 0 auto;
+        }
+
+        .view {
+            display: none;
+            animation: fadeUp 0.3s ease;
+        }
+
+        .view.active {
+            display: block;
+        }
+
+        @keyframes fadeUp {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* HUB */
+        .hub-header {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 16px;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 24px;
+        }
+
+        .list-selector {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            color: var(--text-main);
+            padding: 12px 16px;
+            border-radius: var(--radius-sm);
+            font-size: 14px;
+            font-weight: 600;
+            outline: none;
+            cursor: pointer;
+            min-width: 240px;
+            box-shadow: var(--shadow-sm);
+        }
+
+        .mode-tabs {
+            display: flex;
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-sm);
+            padding: 4px;
+            gap: 4px;
+        }
+
+        .tab-btn {
+            padding: 10px 20px;
+            border-radius: 8px;
+            background: transparent;
+            border: none;
+            color: var(--text-muted);
+            font-weight: 600;
+            font-size: 14px;
+            cursor: pointer;
+            transition: all 0.25s;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            white-space: nowrap;
+        }
+
+        .tab-btn:hover {
+            color: var(--primary);
+            background: rgba(37, 99, 235, 0.05);
+        }
+
+        .tab-btn.active {
+            background: var(--primary-gradient);
+            color: white;
+            box-shadow: var(--shadow-blue);
+        }
+
+        /* DASHBOARD */
+        .dash-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 16px;
+            margin-bottom: 24px;
+        }
+
+        .dash-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            padding: 20px;
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            box-shadow: var(--shadow);
+            transition: transform 0.2s;
+        }
+
+        .dash-card:hover {
+            transform: translateY(-2px);
+        }
+
+        .dash-icon {
+            width: 48px;
+            height: 48px;
+            border-radius: 12px;
+            display: grid;
+            place-items: center;
+            font-size: 22px;
+            background: var(--primary-gradient);
+            color: white;
+            box-shadow: var(--shadow-blue);
+        }
+
+        .dash-info h3 {
+            font-size: 24px;
+            font-weight: 800;
+        }
+
+        .dash-info p {
+            color: var(--text-muted);
+            font-size: 13px;
+            margin-top: 2px;
+        }
+
+        .progress-section {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            padding: 28px;
+            box-shadow: var(--shadow);
+            text-align: center;
+        }
+
+        .progress-bar-container {
+            width: 100%;
+            background: #e2e8f0;
+            height: 12px;
+            border-radius: 6px;
+            overflow: hidden;
+            margin: 16px 0;
+        }
+
+        .progress-bar-fill {
+            height: 100%;
+            background: var(--primary-gradient);
+            width: 0%;
+            transition: width 0.5s ease;
+        }
+
+        .cta-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 14px 28px;
+            background: var(--primary-gradient);
+            color: white;
+            border: none;
+            border-radius: var(--radius-sm);
+            font-size: 16px;
+            font-weight: 700;
+            cursor: pointer;
+            box-shadow: var(--shadow-blue);
+            margin-top: 16px;
+        }
+
+        /* QUIZ */
+        .quiz-container {
+            display: grid;
+            grid-template-columns: 1fr;
+            grid-template-rows: minmax(200px, auto) 1fr;
+            gap: 20px;
+            min-height: calc(100dvh - 140px);
+        }
+
+        @media (orientation: landscape) and (max-height: 700px),
+        (min-width: 1024px) {
+            .quiz-container {
+                grid-template-columns: 1fr 1fr;
+                grid-template-rows: 1fr;
+            }
+        }
+
+        .q-left {
+            background: var(--primary-gradient);
+            border-radius: var(--radius);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            padding: 32px 24px;
+            position: relative;
+            overflow: hidden;
+            box-shadow: var(--shadow-blue);
+            transition: all 0.4s ease;
+            color: white;
+        }
+
+        .q-cat {
+            font-size: 12px;
+            text-transform: uppercase;
+            letter-spacing: 1.5px;
+            color: rgba(255, 255, 255, 0.9);
+            margin-bottom: 12px;
+            font-weight: 700;
+            background: rgba(255, 255, 255, 0.2);
+            padding: 6px 16px;
+            border-radius: 20px;
+            z-index: 1;
+        }
+
+        .q-word {
+            font-size: clamp(32px, 5vw, 48px);
+            font-weight: 900;
+            margin-bottom: 8px;
+            z-index: 1;
+        }
+
+        .q-phon {
+            font-size: 16px;
+            color: rgba(255, 255, 255, 0.85);
+            font-style: italic;
+            margin-bottom: 16px;
+            z-index: 1;
+        }
+
+        .q-prompt {
+            font-size: 15px;
+            color: rgba(255, 255, 255, 0.75);
+            max-width: 300px;
+            line-height: 1.5;
+            z-index: 1;
+        }
+
+        .q-progress {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            height: 6px;
+            background: rgba(255, 255, 255, 0.2);
+        }
+
+        .q-progress-fill {
+            height: 100%;
+            background: white;
+            transition: width 0.5s;
+        }
+
+        .q-left.neural-locked {
+            background: linear-gradient(135deg, #10b981, #047857);
+        }
+
+        .neural-anchor {
+            position: absolute;
+            inset: 0;
+            background: rgba(255, 255, 255, 0.98);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            padding: 24px;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.4s ease;
+            z-index: 10;
+        }
+
+        .q-left.neural-locked .neural-anchor {
+            opacity: 1;
+        }
+
+        .anchor-emoji {
+            font-size: 48px;
+            margin-bottom: 12px;
+            animation: popIn 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+
+        .anchor-sentence {
+            font-size: 16px;
+            color: var(--text-main);
+            line-height: 1.6;
+            text-align: center;
+            font-style: italic;
+            max-width: 90%;
+        }
+
+        .anchor-audio-wave {
+            display: flex;
+            gap: 4px;
+            margin-top: 16px;
+            align-items: center;
+            height: 20px;
+        }
+
+        .anchor-audio-wave span {
+            width: 4px;
+            background: var(--primary);
+            border-radius: 2px;
+            animation: wave 0.8s infinite ease-in-out;
+        }
+
+        .anchor-audio-wave span:nth-child(2) {
+            animation-delay: 0.1s;
+        }
+
+        .anchor-audio-wave span:nth-child(3) {
+            animation-delay: 0.2s;
+        }
+
+        .anchor-audio-wave span:nth-child(4) {
+            animation-delay: 0.3s;
+        }
+
+        @keyframes popIn {
+            from {
+                transform: scale(0.5);
+                opacity: 0;
+            }
+
+            to {
+                transform: scale(1);
+                opacity: 1;
+            }
+        }
+
+        @keyframes wave {
+
+            0%,
+            100% {
+                height: 4px;
+            }
+
+            50% {
+                height: 20px;
+            }
+        }
+
+        .q-right {
+            display: grid;
+            grid-template-rows: repeat(4, 1fr);
+            gap: 12px;
+        }
+
+        .opt-btn {
+            background: var(--bg-card);
+            border: 2px solid var(--border);
+            border-radius: var(--radius);
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            padding: 14px 20px;
+            font-size: 15px;
+            font-weight: 600;
+            text-align: left;
+            box-shadow: var(--shadow);
+            transition: all 0.2s;
+            cursor: pointer;
+            color: var(--text-main);
+        }
+
+        .opt-btn:hover {
+            border-color: var(--primary-light);
+            transform: translateY(-2px);
+        }
+
+        .opt-letter {
+            width: 36px;
+            height: 36px;
+            border-radius: 8px;
+            background: #f1f5f9;
+            display: grid;
+            place-items: center;
+            font-weight: 800;
+            color: var(--text-muted);
+            flex-shrink: 0;
+        }
+
+        .opt-btn:hover .opt-letter {
+            background: var(--primary);
+            color: white;
+        }
+
+        .opt-btn.correct {
+            background: #dcfce7;
+            border-color: var(--success);
+            color: #15803d;
+        }
+
+        .opt-btn.wrong {
+            background: #fee2e2;
+            border-color: var(--danger);
+            color: #b91c1c;
+        }
+
+        /* FLASHCARD */
+        .fc-wrap {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 24px;
+            padding: 20px 0;
+        }
+
+        .fc-card-box {
+            perspective: 1500px;
+            width: 100%;
+            max-width: 600px;
+            height: 360px;
+            cursor: pointer;
+        }
+
+        .fc-card {
+            width: 100%;
+            height: 100%;
+            position: relative;
+            transform-style: preserve-3d;
+            transition: transform 0.6s cubic-bezier(0.4, 0.2, 0.2, 1);
+        }
+
+        .fc-card.flip {
+            transform: rotateY(180deg);
+        }
+
+        .fc-face {
+            position: absolute;
+            inset: 0;
+            backface-visibility: hidden;
+            border-radius: var(--radius);
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            box-shadow: var(--shadow-lg);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            padding: 32px;
+            text-align: center;
+        }
+
+        .fc-back {
+            transform: rotateY(180deg);
+            background: linear-gradient(135deg, #f8fafc, rgba(37, 99, 235, 0.03));
+            border-color: var(--primary-light);
+        }
+
+        .fc-word-row {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 8px;
+        }
+
+        .fc-word {
+            font-size: 36px;
+            font-weight: 900;
+            background: var(--primary-gradient);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .fc-phon {
+            color: var(--text-muted);
+            font-style: italic;
+            margin-bottom: 24px;
+        }
+
+        .fc-mean {
+            font-size: 18px;
+            line-height: 1.6;
+            color: var(--text-main);
+            font-weight: 500;
+        }
+
+        .fc-ex-row {
+            display: flex;
+            align-items: flex-start;
+            gap: 12px;
+            margin-top: 24px;
+            border-top: 1px solid var(--border);
+            padding-top: 20px;
+            width: 100%;
+        }
+
+        .fc-ex {
+            font-size: 14px;
+            color: var(--text-muted);
+            font-style: italic;
+            flex: 1;
+            text-align: left;
+            line-height: 1.5;
+        }
+
+        .speak-btn {
+            background: none;
+            border: none;
+            font-size: 22px;
+            cursor: pointer;
+            padding: 4px;
+            flex-shrink: 0;
+        }
+
+        .speak-btn:active {
+            transform: scale(0.85);
+        }
+
+        .fc-controls {
+            display: flex;
+            gap: 16px;
+        }
+
+        .fc-btn {
+            padding: 12px 24px;
+            border-radius: var(--radius-sm);
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            font-weight: 700;
+            color: var(--text-main);
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .fc-btn:hover {
+            background: var(--primary-gradient);
+            color: white;
+            border-color: transparent;
+        }
+
+        /* FLOW */
+        .flow-container {
+            max-width: 800px;
+            margin: 0 auto;
+            text-align: center;
+        }
+
+        .flow-sentence-box {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            padding: 40px 24px;
+            margin-bottom: 24px;
+            min-height: 160px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .flow-sentence {
+            font-size: clamp(18px, 4vw, 26px);
+            line-height: 1.6;
+            font-weight: 500;
+        }
+
+        .flow-blank {
+            display: inline-block;
+            min-width: 120px;
+            border-bottom: 3px dashed var(--primary);
+            color: var(--primary);
+            font-weight: 800;
+            padding: 0 8px;
+        }
+
+        .flow-blank.filled {
+            border-bottom-style: solid;
+            color: var(--success);
+        }
+
+        .flow-input-area {
+            display: flex;
+            gap: 12px;
+            max-width: 500px;
+            margin: 0 auto;
+        }
+
+        .flow-input {
+            flex: 1;
+            padding: 16px 20px;
+            border-radius: var(--radius-sm);
+            background: var(--bg-card);
+            border: 2px solid var(--border);
+            font-size: 18px;
+            font-weight: 600;
+            outline: none;
+            text-align: center;
+            color: var(--text-main);
+        }
+
+        .flow-input:focus {
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px var(--blue-glow);
+        }
+
+        .flow-input.shake {
+            animation: shake 0.4s ease;
+            border-color: var(--danger);
+        }
+
+        @keyframes shake {
+
+            0%,
+            100% {
+                transform: translateX(0);
+            }
+
+            25% {
+                transform: translateX(-10px);
+            }
+
+            75% {
+                transform: translateX(10px);
+            }
+        }
+
+        .flow-submit {
+            padding: 16px 24px;
+            border-radius: var(--radius-sm);
+            background: var(--primary-gradient);
+            border: none;
+            color: white;
+            font-weight: 700;
+            cursor: pointer;
+            box-shadow: var(--shadow-blue);
+        }
+
+        .flow-stats {
+            display: flex;
+            justify-content: center;
+            gap: 24px;
+            margin-top: 24px;
+            color: var(--text-muted);
+            font-size: 14px;
+        }
+
+        .flow-stats strong {
+            color: var(--primary);
+        }
+
+        /* CROSSWORD */
+        .cw-wrap {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 24px;
+        }
+
+        .cw-grid {
+            display: grid;
+            gap: 3px;
+            background: var(--border);
+            padding: 3px;
+            border-radius: var(--radius-sm);
+        }
+
+        .cw-cell {
+            aspect-ratio: 1/1;
+            background: var(--bg-card);
+            position: relative;
+            display: grid;
+            place-items: center;
+            font-weight: 700;
+            font-size: 16px;
+            text-transform: uppercase;
+            min-width: 36px;
+            min-height: 36px;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+
+        .cw-cell.block {
+            background: var(--primary-dark);
+            cursor: default;
+        }
+
+        .cw-cell.active {
+            background: rgba(37, 99, 235, 0.1);
+        }
+
+        .cw-cell.selected {
+            background: rgba(37, 99, 235, 0.2);
+            outline: 2px solid var(--primary);
+        }
+
+        .cw-cell input {
+            width: 100%;
+            height: 100%;
+            border: none;
+            background: transparent;
+            text-align: center;
+            text-transform: uppercase;
+            font-weight: 700;
+            font-size: 16px;
+            color: var(--text-main);
+            outline: none;
+            caret-color: transparent;
+            cursor: pointer;
+        }
+
+        .cw-cell .num {
+            position: absolute;
+            top: 2px;
+            left: 3px;
+            font-size: 9px;
+            color: var(--text-muted);
+        }
+
+        .cw-clues {
+            width: 100%;
+            max-width: 600px;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 16px;
+        }
+
+        .cw-clue-box {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-sm);
+            padding: 16px;
+            max-height: 200px;
+            overflow-y: auto;
+        }
+
+        .cw-clue-box h4 {
+            font-size: 12px;
+            color: var(--primary);
+            text-transform: uppercase;
+            margin-bottom: 10px;
+        }
+
+        .cw-clue {
+            font-size: 13px;
+            padding: 8px;
+            border-radius: 6px;
+            cursor: pointer;
+            margin-bottom: 4px;
+            color: var(--text-muted);
+        }
+
+        .cw-clue:hover,
+        .cw-clue.active {
+            background: rgba(37, 99, 235, 0.08);
+            color: var(--primary);
+            font-weight: 600;
+        }
+
+        .virtual-keyboard {
+            display: none;
+            width: 100%;
+            max-width: 500px;
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-sm);
+            padding: 10px;
+            box-shadow: var(--shadow-lg);
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .vk-row {
+            display: flex;
+            justify-content: center;
+            gap: 6px;
+        }
+
+        .vk-key {
+            flex: 1;
+            max-width: 40px;
+            height: 42px;
+            border-radius: 6px;
+            background: #f1f5f9;
+            border: 1px solid var(--border);
+            font-weight: 700;
+            font-size: 16px;
+            color: var(--text-main);
+            display: grid;
+            place-items: center;
+            cursor: pointer;
+            user-select: none;
+        }
+
+        .vk-key:active {
+            background: var(--primary);
+            color: white;
+        }
+
+        .vk-key.del {
+            max-width: 70px;
+            background: #fee2e2;
+            color: var(--danger);
+        }
+
+        .overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(15, 23, 42, 0.5);
+            z-index: 90;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.3s;
+        }
+
+        .overlay.show {
+            opacity: 1;
+            pointer-events: auto;
+        }
+
+        .mobile-float-hamb {
+            position: fixed;
+            top: calc(16px + var(--safe-top));
+            left: 16px;
+            width: 44px;
+            height: 44px;
+            border-radius: 12px;
+            background: var(--primary-gradient);
+            color: white;
+            border: none;
+            display: grid;
+            place-items: center;
+            font-size: 20px;
+            cursor: pointer;
+            box-shadow: var(--shadow-blue);
+            z-index: 80;
+        }
+
+        @media (max-width: 768px) and (orientation: portrait) {
+            .content-body {
+                padding: 16px;
+                padding-top: calc(70px + var(--safe-top));
+            }
+
+            .q-left {
+                padding: 24px 16px;
+                min-height: 220px;
+            }
+
+            .q-right {
+                grid-template-rows: auto;
+                gap: 10px;
+            }
+
+            .opt-btn {
+                padding: 14px 16px;
+                font-size: 14px;
+            }
+
+            .hub-header {
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            .mode-tabs {
+                overflow-x: auto;
+            }
+
+            .list-selector {
+                min-width: auto;
+                width: 100%;
+            }
+
+            .fc-card-box {
+                height: 320px;
+            }
+
+            .fc-word {
+                font-size: 28px;
+            }
+
+            .flow-input-area {
+                flex-direction: column;
+            }
+
+            .flow-submit {
+                width: 100%;
+            }
+
+            .cw-grid {
+                transform: scale(0.85);
+                transform-origin: top center;
+            }
+
+            .cw-clues {
+                grid-template-columns: 1fr;
+            }
+
+            .virtual-keyboard {
+                display: flex;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <aside id="sidebar">
+        <div class="brand">
+            <div class="brand-icon">🎓</div>
+            <div class="brand-title">Mastery Pro</div>
+        </div>
+        <ul class="nav-links">
+            <li><button class="nav-link active" data-view="dashboard">📊 Dashboard</button></li>
+            <li><button class="nav-link" data-view="hub">🧠 Mastery Hub</button></li>
+            <li><button class="nav-link" data-view="crossword">✏️ Crossword</button></li>
+        </ul>
+        <div class="sidebar-stats">
+            <div class="mini-stat"><span>⭐ XP:</span><strong id="side-xp">0</strong></div>
+            <div class="mini-stat"><span>📖 Words:</span><strong id="side-words">0</strong></div>
+            <div class="mini-stat"><span>🔥 Streak:</span><strong id="side-streak">0 days</strong></div>
+        </div>
+    </aside>
+
+    <button class="mobile-float-hamb" id="mobileHamb">☰</button>
+
+    <div class="main-wrapper">
+        <header>
+            <button class="hamb-btn" id="hamb">☰</button>
+            <div class="header-title" id="page-title">Dashboard</div>
+            <div class="header-stats">
+                <div class="stat-pill streak">🔥 <span id="head-streak">0</span></div>
+                <div class="stat-pill xp">⭐ <span id="head-xp">0</span></div>
+            </div>
+        </header>
+
+        <div class="content-body">
+            <!-- DASHBOARD -->
+            <section id="view-dashboard" class="view active">
+                <div class="dash-grid">
+                    <div class="dash-card">
+                        <div class="dash-icon">📚</div>
+                        <div class="dash-info">
+                            <h3 id="dash-words">0</h3>
+                            <p>Words Learned</p>
+                        </div>
+                    </div>
+                    <div class="dash-card">
+                        <div class="dash-icon">🎯</div>
+                        <div class="dash-info">
+                            <h3 id="dash-accuracy">0%</h3>
+                            <p>Average Accuracy</p>
+                        </div>
+                    </div>
+                    <div class="dash-card">
+                        <div class="dash-icon">🔥</div>
+                        <div class="dash-info">
+                            <h3 id="dash-streak">0</h3>
+                            <p>Day Streak</p>
+                        </div>
+                    </div>
+                    <div class="dash-card">
+                        <div class="dash-icon">🏆</div>
+                        <div class="dash-info">
+                            <h3 id="dash-xp">0</h3>
+                            <p>Total XP</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="progress-section">
+                    <h2>Daily Learning Goal</h2>
+                    <p>Complete 10 activities today to keep your streak alive!</p>
+                    <div class="progress-bar-container">
+                        <div class="progress-bar-fill" id="daily-progress"></div>
+                    </div>
+                    <p style="font-size: 13px; color: var(--text-dim);"><strong id="daily-count">0</strong> / 10
+                        completed</p>
+                    <button class="cta-btn" id="cta-start">🚀 Start Mastery Hub</button>
+                </div>
+            </section>
+
+            <!-- HUB -->
+            <section id="view-hub" class="view">
+                <div class="hub-header">
+                    <select class="list-selector" id="list-selector"></select>
+                    <div class="mode-tabs">
+                        <button class="tab-btn active" data-mode="flash">🃏 Study</button>
+                        <button class="tab-btn" data-mode="quiz">🎯 Test</button>
+                        <button class="tab-btn" data-mode="flow">⌨️ Flow</button>
+                    </div>
+                </div>
+                <div class="hub-content">
+                    <div id="mode-flash" class="hub-mode">
+                        <div class="fc-wrap">
+                            <div class="fc-card-box" id="fc-box">
+                                <div class="fc-card" id="fc-card">
+                                    <div class="fc-face">
+                                        <div class="fc-word-row">
+                                            <div class="fc-word" id="fc-word">word</div>
+                                            <button class="speak-btn" id="speak-word" title="Listen">🔊</button>
+                                        </div>
+                                        <div class="fc-phon" id="fc-phon">/phonetic/</div>
+                                        <div style="color:var(--text-dim); font-size:14px; margin-top:24px;">Tap card to
+                                            reveal meaning</div>
+                                    </div>
+                                    <div class="fc-face fc-back">
+                                        <div class="fc-mean" id="fc-mean">Definition</div>
+                                        <div class="fc-ex-row">
+                                            <div class="fc-ex" id="fc-ex">"Example"</div>
+                                            <button class="speak-btn" id="speak-sentence" title="Listen">🔊</button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="fc-controls">
+                                <button class="fc-btn" id="fc-prev">← Previous</button>
+                                <button class="fc-btn" id="fc-next">Next →</button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div id="mode-quiz" class="hub-mode" style="display:none;">
+                        <div class="quiz-container">
+                            <div class="q-left" id="q-left">
+                                <div class="q-cat">VOCABULARY</div>
+                                <div class="q-word" id="q-word">word</div>
+                                <div class="q-phon" id="q-phon">/phonetic/</div>
+                                <div class="q-prompt">Select the correct English definition.</div>
+                                <div class="q-progress">
+                                    <div class="q-progress-fill" id="q-prog"></div>
+                                </div>
+                                <div class="neural-anchor">
+                                    <div class="anchor-emoji" id="anchor-emoji">🎯</div>
+                                    <div class="anchor-sentence" id="anchor-sentence">"Sentence"</div>
+                                    <div class="anchor-audio-wave"><span></span><span></span><span></span><span></span>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="q-right" id="q-opts"></div>
+                        </div>
+                    </div>
+
+                    <div id="mode-flow" class="hub-mode" style="display:none;">
+                        <div class="flow-container">
+                            <div class="flow-sentence-box">
+                                <div class="flow-sentence" id="flow-sentence"></div>
+                            </div>
+                            <div class="flow-input-area">
+                                <input type="text" class="flow-input" id="flow-input"
+                                    placeholder="Type the missing word..." autocomplete="off" autocapitalize="off"
+                                    spellcheck="false">
+                                <button class="flow-submit" id="flow-submit">Check ↵</button>
+                            </div>
+                            <div class="flow-stats">
+                                <span>🔥 Streak: <strong id="flow-streak">0</strong></span>
+                                <span>✅ Correct: <strong id="flow-correct">0</strong></span>
+                                <span>📝 Progress: <strong id="flow-progress">0/0</strong></span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- CROSSWORD -->
+            <section id="view-crossword" class="view">
+                <div class="cw-wrap">
+                    <div class="cw-grid" id="cw-grid"></div>
+                    <div class="virtual-keyboard" id="vk">
+                        <div class="vk-row" id="vk-row-1"></div>
+                        <div class="vk-row" id="vk-row-2"></div>
+                        <div class="vk-row" id="vk-row-3"></div>
+                    </div>
+                    <div class="cw-clues">
+                        <div class="cw-clue-box">
+                            <h4>Across</h4>
+                            <div id="cw-across"></div>
+                        </div>
+                        <div class="cw-clue-box">
+                            <h4>Down</h4>
+                            <div id="cw-down"></div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </div>
+    </div>
+
+    <div class="overlay" id="overlay"></div>
+
+    <script>
+        /* ==========================================================================
+           1. WORD DATABASE  👉 PASTE YOUR LISTS HERE
+           Format: ["word", "/phonetic/", "meaning", "example sentence", "emoji"]
+           ========================================================================== */
+        const LIST_01 = [
+            ["emperor", "/ˈempərə(r)/", "A supreme ruler, especially of an empire", "The emperor's wisdom united the diverse regions of his vast empire.", "👑"],
+            ["exact", "/ɪgˈzækt/", "Not approximated in any way; precise", "The scientist needed the exact measurements for the experiment.", "🎯"],
+            ["traditional", "/trəˈdɪʃənl/", "Existing in or as part of a tradition", "The villagers performed a traditional dance passed down for generations.", "🏮"],
+            ["lack", "/læk/", "The state of being without or not having enough", "Without that morning meal, the body may lack the necessary fuel.", "🕳️"],
+            ["pardon", "/ˈpɑːdn/", "To forgive or excuse a person or offense", "After stepping on his friend's foot, Jake quickly said, 'Pardon me.'", "🙏"],
+            ["regent", "/ˈriːdʒənt/", "A person appointed to administer a country", "During the young king's minority, the regent managed the kingdom.", "🏰"],
+            ["burgeon", "/ˈbɜːdʒən/", "Begin to grow or increase rapidly", "With spring's arrival, the garden began to burgeon with vibrant flowers.", "🌱"],
+            ["argue", "/ˈɑːgjuː/", "Exchange or express diverging views", "Despite their effort to remain calm, they continued to argue about the project.", "🗣️"],
+            ["barely", "/ˈbeəli/", "Only just; almost not", "She was so tired that she could barely keep her eyes open.", "😴"],
+            ["methane", "/ˈmiːθeɪn/", "A colorless, odorless flammable gas", "Methane is a potent greenhouse gas released during decomposition.", "💨"],
+            ["hierarchy", "/ˈhaɪərɑːkɪ/", "A system in which members are ranked", "In the corporate hierarchy, senior management influences strategy.", "📊"],
+            ["guidance", "/ˈgaɪdns/", "Advice or information aimed at resolving a problem", "She sought guidance from her mentor to navigate her new role.", "🧭"],
+            ["philosophy", "/fɪˈlɒsəfi/", "The study of the fundamental nature of knowledge", "Her philosophy on life emphasizes kindness and living in the present.", "🦉"],
+            ["chronic", "/ˈkrɒnɪk/", "(Of a disease) persisting for a long time", "He suffers from chronic back pain that has persisted for years.", "⏳"],
+            ["desirable", "/dɪˈzaɪərəbl/", "Worth having or seeking; attractive", "Having a flexible work schedule is highly desirable to many employees.", "✨"],
+            ["consortium", "/kənˈsɔːtɪəm/", "An association, typically of several companies", "The university formed a consortium with tech companies to advance AI.", "🤝"],
+            ["buckle", "/ˈbʌkl/", "A device used to fasten two loose ends", "Make sure to buckle your backpack straps securely before the hike.", "🎒"],
+            ["curry", "/ˈkʌri/", "A spicy dish of meat/vegetables", "I made a delicious chicken curry with a blend of aromatic spices.", "🍛"],
+            ["subliminal", "/ˌsʌbˈlɪmɪnl/", "Below the threshold of conscious perception", "The ad used subliminal messages to subtly influence viewers' decisions.", "👁️"],
+            ["chamber", "/ˈtʃeɪmbə(r)/", "A large room used for formal events", "The scientist adjusted the pressure inside the vacuum chamber.", "🔬"],
+            ["frequent", "/ˈfriːkwənt/", "Occurring or done on many occasions", "She made frequent visits to the library to study for her exams.", "🔄"],
+            ["prosperous", "/ˈprɒspərəs/", "Successful in material terms; flourishing", "After years of hard work, the small business became a prosperous enterprise.", "📈"],
+            ["purpose", "/ˈpɜːpəs/", "The reason for which something is done", "She approached her new role with a clear sense of purpose.", "🎯"],
+            ["variety", "/vəˈraɪəti/", "The quality or state of being diverse", "The farmers' market offers a wide variety of fresh fruits and vegetables.", "🍎"],
+            ["immigration", "/ˌɪmɪˈgreɪʃn/", "The action of coming to live permanently abroad", "Immigration policies play a crucial role in shaping the economy.", "✈️"],
+            ["natural", "/ˈnætʃrəl/", "Existing in or caused by nature", "She preferred using natural ingredients to ensure healthy meals.", "🌿"],
+            ["bet", "/bet/", "Risk something of value on an outcome", "He placed a bet on the soccer match, hoping his team would win.", "🎲"],
+            ["consumer", "/kənˈsjuːmə(r)/", "A person who purchases goods and services", "Modern companies need to understand consumer preferences to tailor products.", "🛒"],
+            ["physician", "/fɪˈzɪʃn/", "A person qualified to practice medicine", "The physician carefully reviewed the patient's medical history.", "🩺"],
+            ["equal", "/ˈiːkwəl/", "Being the same in quantity or value", "Everyone was given an equal opportunity to contribute ideas.", "⚖️"],
+            ["resort", "/rɪˈzɔːt/", "A place for holidays; to turn to for help", "After trying various treatments, she decided to resort to a new procedure.", "🏖️"],
+            ["leadership", "/ˈliːdəʃɪp/", "The action of leading a group", "Effective leadership requires the skill to inspire and motivate a team.", "👑"],
+            ["equity", "/ˈekwəti/", "The quality of being fair and impartial", "The company's commitment to equity is evident in its diverse hiring.", "🤝"],
+            ["excavate", "/ˈekskəveɪt/", "Make a hole by digging", "Archaeologists worked diligently to excavate the ancient ruins.", "⛏️"],
+            ["nuclear", "/ˈnjuːkliə(r)/", "Relating to nuclear energy", "The nuclear reactor provides a significant portion of the country's energy.", "☢️"],
+            ["mutual", "/ˈmjuːtʃuəl/", "Experienced in the same way by two people", "Their decision to collaborate was based on mutual trust and respect.", "🤝"],
+            ["hectare", "/ˈhekteə(r)/", "A metric unit of area", "The farm covers an area of 50 hectares, allowing for diverse crops.", "🌾"],
+            ["density", "/ˈdensəti/", "The degree of compactness", "The density of the new material makes it ideal for lightweight construction.", "🧱"],
+            ["massive", "/ˈmæsɪv/", "Exceptionally large, heavy, and solid", "This memorial is home to a massive statue of President Abraham Lincoln.", "🗿"],
+            ["congratulate", "/kənˈgrætʃuleɪt/", "Express pleasure on someone's success", "I want to congratulate you on your recent promotion; you deserve it!", "🎉"],
+            ["companion", "/kəmˈpæniən/", "A person with whom one spends time", "She brought her loyal dog along as her companion on the road trip.", "🐕"],
+            ["rig", "/rɪg/", "Manipulate or arrange fraudulently", "The crew worked quickly to rig the sailboat for the upcoming race.", "⛵"],
+            ["input", "/ˈɪnpʊt/", "What is put in, taken in, or operated on", "The software requires input to customize the settings.", "⌨️"],
+            ["merely", "/ˈmɪəli/", "Just; only and nothing more", "She was merely trying to help, but it was misunderstood.", "🤷"],
+            ["impart", "/ɪmˈpɑːt/", "Make (information) known; communicate", "The teacher's goal is to impart knowledge and inspire curiosity.", "🧠"],
+            ["forfeit", "/ˈfɔːfɪt/", "Lose or be deprived of as a penalty", "If you fail to attend the training, you may forfeit your eligibility.", "🚫"],
+            ["calorie", "/ˈkæləri/", "A unit of energy measured in food", "To maintain weight, it's important to monitor your daily calorie intake.", "🔥"],
+            ["van", "/væn/", "A medium-sized motor vehicle", "We rented a van for our family vacation to fit all our luggage.", "🚐"],
+            ["ventilation", "/ˌventɪˈleɪʃn/", "The provision of fresh air", "Proper ventilation in the office is essential for a comfortable environment.", "🌬️"],
+            ["intermediate", "/ˌɪntəˈmiːdiət/", "Coming between two things", "She enrolled in an intermediate Spanish course after the beginner level.", "🔀"],
+            ["eternal", "/ɪˈtɜːnl/", "Lasting or existing forever", "The poet described their love as eternal, lasting beyond time.", "♾️"],
+            ["invasion", "/ɪnˈveɪʒn/", "An instance of invading", "Historical records describe the invasion of Normandy as a pivotal moment.", "⚔️"],
+            ["nevertheless", "/ˌnevəðəˈles/", "In spite of that", "The weather was cold; nevertheless, the outdoor event was a success.", "🌧️"],
+            ["celebrate", "/ˈselɪbreɪt/", "Acknowledge a significant occasion", "We gathered to celebrate her promotion with a surprise party.", "🥂"],
+            ["inspiring", "/ɪnˈspaɪərɪŋ/", "Filling with the urge to do something", "Her speech was incredibly inspiring and motivated everyone.", "🌟"],
+            ["attendance", "/əˈtendəns/", "The action or state of being present", "Regular attendance at meetings is crucial for staying updated.", "📅"],
+            ["optional", "/ˈɒpʃənl/", "Available but not obligatory", "Attending the workshop is optional, but it will enhance your understanding.", "🔘"],
+            ["enable", "/ɪˈneɪbl/", "Give the authority or means to do", "Advanced technology will enable us to complete the project efficiently.", "🔓"],
+            ["departmental", "/ˌdiːpɑːtˈmentl/", "Relating to a department", "The company held a departmental meeting to discuss new policies.", "🏢"],
+            ["heal", "/hiːl/", "Become sound or healthy again", "With time and proper care, the injured athlete was able to heal.", "💖"],
+            ["dismantle", "/dɪsˈmæntl/", "Take a machine or structure to pieces", "After the festival, the team worked to dismantle the stage.", "🛠️"],
+            ["wage", "/weɪdʒ/", "A fixed regular payment for work", "The company decided to increase the minimum wage to attract skilled workers.", "💰"],
+            ["landscape", "/ˈlændskeɪp/", "The visible features of an area", "The artist captured the breathtaking landscape of the mountains.", "🏔️"],
+            ["emotion", "/ɪˈməʊʃn/", "A natural instinctive state of mind", "Her speech was filled with so much emotion that it moved people.", "😢"],
+            ["commonwealth", "/ˈkɒmənwelθ/", "A political community", "The Commonwealth of Nations works together to promote economic development.", "🌍"],
+            ["newsletter", "/ˈnjuːzletə(r)/", "A printed or electronic document", "Subscribers receive a monthly newsletter with updates on company news.", "📰"],
+            ["periodical", "/ˌpɪəriˈɒdɪkl/", "A magazine published regularly", "She enjoys reading the latest issue in her favorite periodical.", "📖"],
+            ["receptionist", "/rɪˈsepʃənɪst/", "A person employed to receive visitors", "The receptionist greeted visitors with a warm smile and directed them.", "💁"],
+            ["security", "/sɪˈkjʊərəti/", "The state of being free from danger", "The company invested in advanced security systems to protect sensitive info.", "🛡️"],
+            ["clip", "/klɪp/", "A device for holding items together", "She used a paper clip to keep her notes together.", "📎"],
+            ["apace", "/əˈpeɪs/", "At a fast pace; rapidly", "The construction of the new highway is progressing apace.", "🏎️"],
+            ["yield", "/jiːld/", "Produce or provide; an amount produced", "The new farming techniques increased the crop yield significantly.", "🌾"],
+            ["fair", "/feə(r)/", "In accordance with the rules", "The judge ensured that the trial was conducted in a fair manner.", "⚖️"]
+        ];
+
+        const LIST_02 = [
+            ["regional", "/ˈrɪːdʒənl/", "Relating to a particular area or region.", "The study examined regional differences in economic development across the country.", "🗺️"],
+            ["secure", "/sɪˈkjuə(r)/", "To obtain or protect something; safe and protected.", "Your payment information is secure and encrypted at all times.", "🔒"],
+            ["preserve", "/prɪˈzɜːv/", "To keep something safe from harm or decay; to maintain.", "Efforts to preserve the ancient forest have gained international support.", "🌲"],
+            ["reject", "/rɪˈdʒekt/", "To refuse to accept; a product that fails quality standards.", "The committee decided to reject the proposal due to insufficient evidence.", "❌"],
+            ["code", "/kəʊd/", "A system of symbols or signals; to convert information into code.", "Each participant was assigned a unique code to protect their identity.", "🔢"],
+            ["seek", "/siːk/", "To look for; to try to obtain.", "Researchers continue to seek effective treatments for the disease.", "🔍"],
+            ["item", "/ˈaɪtəm/", "A single thing or entry in a list.", "The first item on the agenda was the annual budget review.", "📝"],
+            ["crown", "/kraʊn/", "A decorative headdress worn by royalty; the top part of something.", "The crown symbolized the monarch's authority over the kingdom.", "👑"],
+            ["effort", "/ˈefət/", "Physical or mental energy used to do something.", "Considerable effort was devoted to understanding the phenomenon.", "💪"],
+            ["point", "/pɔɪnt/", "A particular idea, detail, or argument; to direct attention.", "The author made several important points about climate change.", "👉"],
+            ["review", "/rɪˈvjuː/", "To examine or assess; a formal assessment.", "The journal published a comprehensive review of recent studies.", "📖"],
+            ["fabrication", "/ˌfæbrɪˈkeɪʃn/", "The act of inventing false information; construction or manufacture.", "The journalist exposed the fabrication of the entire story.", "🤥"],
+            ["series", "/ˈsɪəriːz/", "A number of similar events or things in sequence.", "The experiment involved a series of controlled tests over six months.", "🔗"],
+            ["variation", "/ˌveəriˈeɪʃn/", "A change or difference; a different form.", "There was significant variation in results across different regions.", "🎨"],
+            ["margin", "/ˈmɑːdʒɪn/", "The edge or border; the difference between two amounts.", "The company's profit margin declined sharply last quarter.", "📏"],
+            ["distraction", "/dɪˈstrækʃn/", "Something that diverts attention; entertainment or amusement.", "Added to this is increased exposure to technology, and the distractions may feel almost insurmountable.", "📱"],
+            ["complicate", "/ˈkɒmplɪkeɪt/", "To make something more difficult or complex.", "The new regulations complicate the approval process significantly.", "🧩"],
+            ["tram", "/træm/", "A public vehicle running on rails; to travel by tram.", "The city invested heavily in expanding its tram network.", "🚋"],
+            ["maturity", "/məˈtʃʊərəti/", "The state of being fully developed; readiness or completion.", "The research team evaluated the maturity of the new technology.", "🎓"],
+            ["download", "/ˌdaʊnˈləʊd/", "To transfer data from a server to a device.", "You can download the user manual from our website.", "⬇️"],
+            ["refer", "/rɪˈfɜː(r)/", "To mention or direct attention to another source or person.", "Please refer to Table 2 for a summary of the findings.", "📚"],
+            ["interview", "/ˈɪntəvjuː/", "A formal meeting to ask questions; to conduct such a meeting.", "The researchers interviewed over 200 participants for the study.", "🎙️"],
+            ["extent", "/ɪkˈstent/", "The range, scope, or degree of something.", "To what extent does social media influence public opinion?", "📐"],
+            ["evacuate", "/ɪˈvækjueɪt/", "To move people from a dangerous place to safety.", "Authorities ordered residents to evacuate before the hurricane arrived.", "🚨"],
+            ["stint", "/stɪnt/", "A fixed period of work or activity.", "During his stint as a research fellow, he published three papers.", "⏳"],
+            ["embankment", "/ɪmˈbæŋkmənt/", "A wall or bank built to prevent flooding or support a road.", "The embankment was reinforced to protect the village from flooding.", "🧱"],
+            ["squash", "/skwɒʃ/", "A sport played in an enclosed court; to crush or squeeze.", "Squash requires quick reflexes and excellent physical conditioning.", "🎾"],
+            ["federation", "/ˌfedəˈreɪʃn/", "A group of states or organizations united under a central authority.", "The federation of universities collaborated on joint research projects.", "🤝"],
+            ["surge", "/sɜːdʒ/", "A sudden powerful movement or increase.", "The holiday season caused a surge in online shopping activity.", "📈"],
+            ["physical", "/ˈfɪzɪkl/", "Relating to the body or material things; a medical examination.", "The study focused on the physical effects of sleep deprivation.", "🏃"],
+            ["justify", "/ˈdʒʌstɪfaɪ/", "To show or prove that something is right or reasonable.", "The results do not justify the high cost of the intervention.", "⚖️"],
+            ["score", "/skɔː(r)/", "To gain points; the number of points achieved.", "Students who received tutoring scored significantly higher on the exam.", "💯"],
+            ["persuade", "/pəˈsweɪd/", "To convince someone to do or believe something.", "The campaign aimed to persuade voters to support the new policy.", "🗣️"],
+            ["migration", "/maɪˈɡreɪʃn/", "Movement of people or animals to a new area.", "Bird migration patterns have shifted due to climate change.", "🦅"],
+            ["overweight", "/ˌəʊvəˈweɪt/", "Weighing more than is normal or allowed.", "The study examined health risks associated with being overweight.", "⚖️"],
+            ["cooperation", "/kəʊˌɒpəˈreɪʃn/", "Working together toward a common goal.", "International cooperation is essential to address global challenges.", "🤝"],
+            ["zoological", "/ˌzəʊəˈlɒdʒɪkl/", "Relating to the study of animals.", "The zoological garden houses over 500 species from around the world.", "🦁"],
+            ["stamp", "/stæmp/", "To press firmly; a small adhesive label used for postage.", "Each document must bear the official stamp of approval.", "📮"],
+            ["whistle", "/ˈwɪsl/", "To make a high sound by forcing air through the lips; a device that produces such a sound.", "The referee blew the whistle to signal the end of the match.", "😗"],
+            ["detective", "/dɪˈtektɪv/", "A person who investigates crimes; relating to investigation.", "The detective gathered evidence to solve the complex case.", "🕵️"],
+            ["occupy", "/ˈɒkjupaɪ/", "To take up space or time; to live in or use a place.", "The new building will occupy the entire city block.", "🏢"],
+            ["ceremony", "/ˈserəməni/", "A formal event held on a special occasion.", "The graduation ceremony was attended by over 2,000 people.", "🎓"],
+            ["diagnose", "/ˈdaɪəɡnəʊz/", "To identify the nature of a problem or illness.", "The doctor was able to diagnose the condition after several tests.", "🩺"],
+            ["denote", "/dɪˈnəʊt/", "To indicate or represent; to mean.", "The symbol X is used to denote an unknown variable.", "🔣"],
+            ["chink", "/tʃɪŋk/", "A narrow crack or opening; to make a light ringing sound.", "A chink of light appeared through the heavy curtains.", "🕯️"],
+            ["iris", "/ˈaɪərɪs/", "The colored part of the eye; a type of flowering plant.", "The iris controls the amount of light entering the eye.", "👁️"],
+            ["resource", "/rɪˈsɔːs/", "A supply of something useful; available assets or materials.", "There are no more excuses as the government has provided adequate resources to reduce pollution on the mountain.", "🛠️"],
+            ["entire", "/ɪnˈtaɪə(r)/", "Complete; whole; with nothing missing.", "A tourist can easily spend an entire week visiting these 16 museums, which all have free admission.", "🔄"],
+            ["epitomise", "/ɪˈpɪtəmaɪz/", "To be a perfect example of something.", "Her career epitomises the ideal of dedicated public service.", "✨"],
+            ["crocodile", "/ˈkrɒkədaɪl/", "A large reptile living in or near water.", "The crocodile is one of the oldest surviving species on Earth.", "🐊"],
+            ["summit", "/ˈsʌmɪt/", "The highest point of a mountain; a meeting of leaders.", "The climbers reached the summit after a grueling two-day ascent.", "🏔️"],
+            ["ensure", "/ɪnˈʃʊə(r)/", "To make certain that something happens.", "We ensure that every package is carefully inspected before shipping.", "✅"],
+            ["odour", "/ˈəʊdə(r)/", "A smell, especially one that is unpleasant.", "The chemical reaction produced a strong, unpleasant odour.", "👃"],
+            ["accurate", "/ˈækjərət/", "Correct; free from error.", "Accurate data collection is essential for valid research findings.", "🎯"],
+            ["superior", "/suːˈpɪəriə(r)/", "Higher in rank or quality; better than others.", "The new model offers superior performance compared to previous versions.", "🏆"],
+            ["tender", "/ˈtendə(r)/", "Soft and easy to cut; gentle and caring.", "The meat should be cooked slowly until it becomes tender.", "🥩"],
+            ["willing", "/ˈwɪlɪŋ/", "Ready and eager to do something.", "Most participants were willing to complete the follow-up survey.", "🙋"],
+            ["perform", "/pəˈfɔːm/", "To carry out an action; to function.", "The experiment was performed under strictly controlled conditions.", "🎭"],
+            ["seep", "/siːp/", "To flow slowly through small openings.", "Water began to seep through the cracks in the foundation.", "💧"],
+            ["ambassador", "/æmˈbæsədə(r)/", "A diplomatic representative of a country or organization.", "The ambassador delivered a speech on international trade relations.", "🎖️"],
+            ["delinquency", "/dɪˈlɪŋkwənsi/", "Failure to fulfill a duty; minor crime, especially by young people.", "The program aims to reduce juvenile delinquency through mentorship.", "⚠️"],
+            ["deliberate", "/dɪˈlɪbərət/", "Done intentionally; to think about carefully before deciding.", "The decision was deliberate and made after extensive consultation.", "🤔"],
+            ["implication", "/ˌɪmplɪˈkeɪʃn/", "A possible effect or consequence; something suggested indirectly.", "The findings have important implications for public health policy.", "💡"],
+            ["broom", "/bruːm/", "A cleaning tool with a long handle and stiff bristles.", "The janitor swept the hallway with an old broom.", "🧹"],
+            ["opponent", "/əˈpəʊnənt/", "A person who disagrees with or competes against another.", "Opponents of mandatory uniforms say that students who wear school uniforms cannot express their individuality.", "🥊"],
+            ["sponsor", "/ˈspɒnsə(r)/", "A person or organization that supports financially; to fund.", "The conference was sponsored by several technology companies.", "💰"],
+            ["decisive", "/dɪˈsaɪsɪv/", "Having the power to decide; settling an issue quickly and firmly.", "The battle proved decisive in determining the outcome of the war.", "🔨"],
+            ["substantial", "/səbˈstænʃl/", "Large in amount or degree; solid and strong.", "Insomnia, the inability to fall asleep or stay asleep, affects a substantial number of individuals.", "🏗️"],
+            ["questionnaire", "/ˌkwestʃəˈneə(r)/", "A set of written questions used for research or survey.", "Participants completed a detailed questionnaire about their habits.", "📋"],
+            ["viewpoint", "/ˈvjuːpɔɪnt/", "A particular way of thinking about something.", "The article presents several different viewpoints on the issue.", "👓"],
+            ["routine", "/ruːˈtiːn/", "A regular way of doing things; done regularly as part of normal work.", "Regular exercise should be part of a healthy daily routine.", "📅"],
+            ["nurture", "/ˈnɜːtʃə(r)/", "To care for and encourage growth; nourishment.", "Parents play a crucial role in nurturing their children's development.", "🌱"],
+            ["slight", "/slaɪt/", "Small in degree; to treat with disrespect.", "Speakers can look at the faces of the audience and search for that small nod of agreement or the slight smile, which is often enough to make even the most fearful speaker relax.", "🤏"],
+            ["genetic", "/dʒəˈnetɪk/", "Relating to genes or heredity; the study of heredity.", "Genetic factors play a significant role in determining certain traits.", "🧬"],
+            ["similarly", "/ˈsɪmələli/", "In a similar way; likewise.", "The first experiment yielded positive results; similarly, the second trial was successful.", "👯"]
+        ];
+
+        const LIST_03 = [
+            ["leak", "/liːk/", "An unintended hole or crack through which fluid or gas may escape; to allow fluid or gas to escape.", "The plumber fixed the leak under the kitchen sink.", "💧"],
+            ["literature", "/ˈlɪtrətʃə(r)/", "Written works, especially those considered of superior or lasting artistic merit; published material on a specific subject.", "She is studying 19th-century Russian literature at university.", "📚"],
+            ["suffer", "/ˈsʌfə(r)/", "To experience or be subjected to something bad, unpleasant, or painful; to deteriorate in quality.", "Many people suffer from seasonal allergies.", "🤕"],
+            ["impede", "/ɪmˈpiːd/", "To delay or prevent someone or something by obstructing them; to hinder.", "Heavy snow impeded the rescue team's progress.", "🚧"],
+            ["spring", "/sprɪŋ/", "The season after winter; a coiled metal device / to jump suddenly or emerge.", "The flowers begin to bloom in early spring.", "🌸"],
+            ["biological", "/ˏbaɪəˈlɔdʒɪkl/", "Relating to biology or living organisms; relating to natural parents rather than adoptive ones.", "The biological diversity of the rainforest is incredible.", "🧬"],
+            ["deduce", "/dɪˈdjuːs/", "To arrive at a fact or conclusion by reasoning; to draw as a logical conclusion.", "From the clues, the detective was able to deduce the killer's identity.", "🔍"],
+            ["doctorate", "/ˈdɒktərɪt/", "The highest university degree, awarded for original research.", "He is currently working on his doctorate in physics.", "🎓"],
+            ["absolute", "/ˈæbsəluːt/", "Not qualified or diminished in any way; total; not dependent on anything else.", "I have absolute confidence in her ability to lead the team.", "💯"],
+            ["theoretical", "/ˏθɪəˈretɪkl/", "Based on or calculated through theory rather than experience or practical application.", "The course covers both the theoretical and practical aspects of engineering.", "📐"],
+            ["internship", "/ˈɪntɜːnʃɪp/", "A period of supervised practical training undertaken by a student or graduate.", "She secured a summer internship at a top marketing firm.", "💼"],
+            ["slender", "/ˈslendə(r)/", "Gracefully thin; narrow; small or inadequate in amount.", "She has a tall, slender figure.", "🌿"],
+            ["respondent", "/rɪˈspɔndənt/", "A person who replies to something, especially one taking part in a survey or legal case.", "Most respondents in the survey expressed satisfaction with the service.", "🙋"],
+            ["surroundings", "/səˈraʊndɪŋz/", "The things and conditions around a person or thing; the environment.", "The hotel is set in beautiful natural surroundings.", "🏞️"],
+            ["couple", "/ˈkʌpl/", "Two individuals of the same sort; a pair / to link or combine together.", "A couple was walking their dog in the park.", "👫"],
+            ["voluntary", "/ˈvɔləntrɪ/", "Done, given, or acting of one's own free will; working without payment.", "She does voluntary work at the local animal shelter.", "🤝"],
+            ["submarine", "/ˏsʌbməˈriːn/", "A warship capable of operating underwater / situated or used under the sea.", "The navy deployed a nuclear submarine to the region.", "🚢"],
+            ["commercial", "/kəˈmɜːʃl/", "Relating to commerce or business / a television or radio advertisement.", "The South Aral Sea used to be a busy commercial region.", "🏢"],
+            ["notion", "/ˈnəuʃn/", "A conception of or belief about something; an impulse or desire.", "I have a general notion of what needs to be done.", "💡"],
+            ["lavatory", "/ˈlævətrɪ/", "A flush toilet or the room containing it.", "The lavatory is located at the end of the hallway.", "🚽"],
+            ["tablet", "/ˈtæblɪt/", "A pill; a flat slab of stone or wood; a digital device.", "Take one tablet of this medication twice a day.", "💊"],
+            ["actual", "/ˈæktʃuəl/", "Existing in fact; real or exact.", "Other countries have fireworks displays as part of an actual competition.", "✅"],
+            ["fold", "/fəuld/", "To bend something over on itself / a crease or line made by folding.", "Please fold the paper in half before cutting it.", "📄"],
+            ["instrument", "/ˋɪnstrəmənt/", "A tool or device used for a particular task; a musical device.", "The surgeon used a delicate instrument for the procedure.", "🎻"],
+            ["simplify", "/ˈsɪmplɪfaɪ/", "To make something simpler or easier to do or understand.", "The new software will simplify the accounting process.", "🧩"],
+            ["compulsory", "/kəmˈpʌlsərɪ/", "Required by law or a rule; obligatory.", "Wearing a seatbelt is compulsory in most countries.", "⚠️"],
+            ["irritation", "/ˈɪrɪˌteɪʃn/", "The state of feeling annoyed or impatient; something that causes annoyance.", "He showed signs of irritation when the flight was delayed.", "😤"],
+            ["expense", "/ɪkˈspens/", "The cost required for a particular purpose; the loss or sacrifice of something.", "The company will cover all travel expenses.", "💸"],
+            ["muddle", "/ˈmʌdl/", "A disordered or confused state / to bring into a disordered state; to confuse.", "The paperwork was in a complete muddle.", "🌀"],
+            ["originate", "/əˈrɪdʒɪneɪt/", "To have a specified beginning; to create or initiate something.", "The tradition is said to originate in the 18th century.", "🌱"],
+            ["induce", "/ɪnˈdjuːs/", "To persuade someone to do something; to bring about or give rise to.", "Nothing could induce him to change his mind.", "🧲"],
+            ["exchange", "/ɪksˈtʃeɪndʒ/", "To give something and receive something else in return / the act of exchanging.", "We exchanged phone numbers after the meeting.", "🔄"],
+            ["disharmony", "/dɪsˈhɑːmənɪ/", "Lack of harmony; disagreement or discord.", "The new policy caused disharmony among the staff.", "🎼"],
+            ["cosset", "/ˈkɔsɪt/", "To care for and protect in an overindulgent way / a pet lamb or a pampered person.", "She tends to cosset her children, never letting them face difficulties.", "🐑"],
+            ["unique", "/juːˈniːk/", "Being the only one of its kind; unlike anything else.", "It is interesting to note that different forms of acting have unique characteristics.", "🦄"],
+            ["crossword", "/ˈkrɔswɜːd/", "A puzzle in which words are filled into a grid based on clues.", "My grandfather does the daily crossword puzzle with his morning coffee.", "✏️"],
+            ["atomic", "/əˈtɔmɪk/", "Relating to or using the energy released by nuclear fission; relating to atoms.", "The treaty aims to prevent the spread of atomic weapons.", "⚛️"],
+            ["disagree", "/ˏdɪsəˈgriː/", "To have a different opinion; to fail to correspond.", "I have to disagree with your conclusion on this matter.", "🙅"],
+            ["check-up", "/ˈtʃekʌp/", "A general examination of someone's health or the condition of something.", "I need to schedule an annual check-up with my doctor.", "🩺"],
+            ["silt", "/sɪlt/", "Fine sand, clay, or other material carried by running water / to become blocked with silt.", "The river delta is formed by the deposition of silt.", "🏜️"],
+            ["inclusive", "/ɪnˈkluːsɪv/", "Including all the required or possible elements; not excluding any section of society.", "The hotel offers an all-inclusive package with meals and activities.", "🌍"],
+            ["reservation", "/ˏrezəˈveɪʃn/", "An arrangement to secure a place; a feeling of doubt or limitation.", "I made a reservation at the restaurant for 7 PM.", "🎟️"],
+            ["transcript", "/ˈtrænskrɪpt/", "A written or printed version of material originally spoken or dictated; an academic record.", "The journalist submitted a transcript of the interview.", "📜"],
+            ["include", "/ɪnˈkluːd/", "To contain as part of a whole; to make someone or something part of a group.", "The tour price includes transportation and a guided museum visit.", "➕"],
+            ["reasonable", "/ˈriːznəbl/", "Having sound judgment; fair and sensible; not too expensive.", "It is reasonable to expect a reply within 48 hours.", "⚖️"],
+            ["abode", "/əˈbəud/", "A place of residence; a house or home.", "Welcome to my humble abode.", "🏠"],
+            ["gadget", "/ˈgædʒɪt/", "A small mechanical or electronic device or tool, especially an ingenious or novel one.", "He loves buying the latest kitchen gadgets.", "📱"],
+            ["emergency", "/ɪˈmɜːdʒənsɪ/", "A serious, unexpected, and often dangerous situation requiring immediate action.", "Call 911 if you have a medical emergency.", "🚨"],
+            ["legacy", "/ˈlegəsɪ/", "Something left or handed down by a predecessor; money or property bequeathed.", "The mayor's legacy includes the new public park system.", "🏛️"],
+            ["leisure", "/ˈleʒə(r)/", "Free time when one is not working; time for relaxation.", "Reading is one of my favorite leisure activities.", "🏖️"],
+            ["overlap", "/ˏəuvəˈlæp/", "To extend over so as to cover partly; to coincide in part.", "The two meetings overlap, so I can only attend one.", "🔀"],
+            ["counterpart", "/ˈkauntəpɑːt/", "A person or thing that corresponds to or has the same function as another.", "The foreign minister met with his French counterpart in Paris.", "👥"],
+            ["tune", "/tjuːn/", "To adjust a musical instrument for correct pitch / a melody or musical theme.", "The guitarist paused to tune his instrument before the concert.", "🎵"],
+            ["strike", "/straɪk/", "To hit forcibly and deliberately; to stop work as a protest / an act of stopping work.", "Lightning struck the old oak tree during the storm.", "⚡"],
+            ["ambiguous", "/æmˈbɪgjuəs/", "Open to more than one interpretation; not having one obvious meaning.", "The contract contained several ambiguous clauses.", "❓"],
+            ["represent", "/ˏreprɪˈzent/", "To stand for or symbolize; to act or speak for someone officially.", "The photo also represents a time of hope and even optimism in the face of hard times.", "🎭"],
+            ["vanish", "/ˈvænɪʃ/", "To disappear suddenly and completely; to cease to exist.", "The magician made the rabbit vanish in a puff of smoke.", "💨"],
+            ["mechanism", "/ˈmekənɪzəm/", "A system of parts working together in a machine; a natural or physical process.", "The locking mechanism on the door is very secure.", "⚙️"],
+            ["dispute", "/dɪˈspjuːt/", "A disagreement, argument, or debate / to argue about or question.", "The border dispute between the two countries lasted for years.", "⚔️"],
+            ["furniture", "/ˈfɜːnɪtʃə(r)/", "Movable articles such as tables and chairs used to make a room ready for use.", "We need to buy some new furniture for the living room.", "🛋️"],
+            ["standard", "/ˈstændəd/", "A level of quality or attainment / used or accepted as a normal basis.", "The hotel failed to meet our expected standards of cleanliness.", "🏆"],
+            ["typical", "/ˈtɪpɪkl/", "Having the distinctive qualities of a particular type of person or thing.", "It was a typical summer day, hot and sunny.", "☀️"],
+            ["strengthen", "/ˈstrŋθn/", "To make or become stronger or more robust.", "Regular exercise will strengthen your heart muscles.", "💪"],
+            ["workaholic", "/ˏwɜːkəˈhɔlɪk/", "A compulsively hard-working person.", "He is a workaholic who rarely takes a vacation.", "⏳"],
+            ["unaware", "/ˏʌnəˈweə(r)/", "Not knowing or realizing something.", "She was completely unaware of the changes to the schedule.", "🙈"],
+            ["erosion", "/ɪˈrəʊʒn/", "The gradual destruction or diminution of something; the process of being worn away by wind or water.", "Soil erosion is a major problem in this agricultural region.", "🌊"],
+            ["exclusively", "/ɪkˈskluːsɪvlɪ/", "In a way that excludes all others; solely or only.", "This club is exclusively for members and their guests.", "🔒"],
+            ["feather", "/ˈfeðə(r)/", "Any of the flat appendages growing on the skin of birds.", "The peacock displayed its beautiful green feathers.", "🪶"],
+            ["pronounceable", "/prəˈnaʊnsəbl/", "Capable of being spoken or articulated.", "The linguist created a completely pronounceable artificial language.", "🗣️"],
+            ["bare", "/beə(r)/", "Without covering; naked or empty.", "He walked across the hot sand with bare feet.", "🦶"],
+            ["luggage", "/ˈlʌgɪdʒ/", "Suitcases or other bags in which to pack personal belongings for traveling.", "Please collect your luggage from the baggage carousel.", "🧳"],
+            ["hose", "/həuz/", "A flexible tube for conveying water / to wash or water with a hose.", "He used a garden hose to wash the car.", "🚿"],
+            ["bulb", "/bʌlb/", "A glass container housing a filament for electric lighting; a plant bulb.", "The light bulb in the hallway needs to be replaced.", "💡"],
+            ["internal", "/ɪnˈtɜːnl/", "Of or situated on the inside; relating to the domestic affairs of a country.", "The company is conducting an internal investigation.", "🏢"],
+            ["ion", "/ˈaɪən/", "An atom or molecule with a net electric charge.", "Sodium ions play a crucial role in nerve function.", "⚛️"],
+            ["cruise", "/kruːz/", "To sail about in an area without a precise destination / a vacation on a ship.", "The car cruised smoothly along the highway.", "🛳️"],
+            ["illusion", "/ɪˈluːʒn/", "A false idea or belief; a deceptive appearance or impression.", "The mirrors in the room created an illusion of infinite space.", "🪞"],
+            ["shave", "/ʃeɪv/", "To remove hair from the face or body with a razor / an act of shaving.", "He shaves every morning before going to work.", "🪒"]
+        ];
+
+        const LIST_04 = [
+            ["incredible", "/ɪnˈkredəbl/", "Impossible or very difficult to believe; extraordinarily good or remarkable.", "The magician performed an incredible trick that left the entire audience speechless.", "✨"],
+            ["vertebrate", "/ˈvɜːtɪbrət/", "An animal with a backbone; having a backbone or spinal column.", "Fish, birds, and mammals are all examples of vertebrates.", "🦴"],
+            ["industrious", "/ɪnˈdʌstrɪəs/", "Diligent and hard-working; showing consistent effort and dedication.", "The industrious students spent every evening in the library preparing for their exams.", "🐝"],
+            ["intestine", "/ɪnˈtestɪn/", "A long tube in the body through which food passes during digestion; the bowel.", "The doctor examined the patient's intestine to determine the cause of the pain.", "🧬"],
+            ["outpost", "/ˈaʊtpəʊst/", "A small settlement or military station located in a remote area.", "The soldiers were stationed at a remote outpost near the border.", "⛺"],
+            ["general", "/ˈdʒenrəl/", "Affecting or concerning most people or things; a high-ranking military officer.", "There is a general agreement that the new policy will benefit everyone.", "🎖️"],
+            ["bother", "/ˈbɒðə(r)/", "To annoy or trouble someone; trouble or inconvenience.", "Please don't bother me while I'm trying to concentrate on this report.", "😤"],
+            ["consignment", "/kənˈsaɪnmənt/", "A batch of goods destined for or delivered to a customer; the act of entrusting something to someone.", "A large consignment of fresh produce arrived at the market early this morning.", "📦"],
+            ["administrator", "/ədˈmɪnɪstreɪtə(r)/", "A person responsible for managing the operations of an organization or system.", "The school administrator announced new rules regarding student attendance.", "👔"],
+            ["convention", "/kənˈvenʃn/", "A large meeting or conference; a customary practice or an formal agreement.", "Thousands of fans attended the annual comic convention in the city center.", "🎪"],
+            ["organic", "/ɔːˈgænɪk/", "Relating to or derived from living matter; produced without artificial chemicals.", "She prefers to buy organic vegetables from the local farmers' market.", "🥬"],
+            ["trapeze", "/trəˈpiːz/", "A horizontal bar hung by two ropes from a high support, used by acrobats in performances.", "The circus performer swung gracefully from one trapeze to another high above the audience.", "🎪"],
+            ["intersection", "/ˌɪntə(r)ˈsekʃn/", "A point or line where two or more things cross, especially a road junction.", "The accident occurred at the busy intersection of Main Street and Fifth Avenue.", "🚦"],
+            ["concept", "/ˈkɒnsept/", "An abstract idea or a general notion.", "Having an expert friend explain difficult math concepts helped Juan understand the subject more easily.", "💡"],
+            ["cardiovascular", "/ˌkɑːdiəʊˈvæskjələ(r)/", "Relating to the heart and blood vessels.", "Regular exercise is essential for maintaining good cardiovascular health.", "❤️"],
+            ["humble", "/ˈhʌmbl/", "Having a modest or low view of one's importance; to cause someone to feel less important.", "Despite his great success, he remained humble and kind to everyone he met.", "🙇"],
+            ["lecture", "/ˈlektʃə(r)/", "An educational talk given to an audience, especially to students in a college or university.", "The professor delivered an engaging lecture on the history of ancient Rome.", "🎤"],
+            ["counter", "/ˈkaʊntə(r)/", "A flat surface for conducting business; in the opposite direction.", "She placed the groceries on the kitchen counter and began to unpack them.", "🛒"],
+            ["brass", "/brɑːs/", "A yellow alloy of copper and zinc; also refers to brass musical instruments.", "The door handle was made of polished brass that gleamed in the sunlight.", "🎺"],
+            ["fauna", "/ˈfɔːnə/", "All the animal species present in a particular region, period, or environment.", "The documentary explored the diverse flora and fauna of the Amazon rainforest.", "🦌"],
+            ["expel", "/ɪkˈspel/", "To force someone to leave a place or organization; to drive out.", "The school decided to expel the student after repeated violations of the code of conduct.", "🚪"],
+            ["equator", "/ɪˈkweɪtə(r)/", "An imaginary line circling the Earth midway between the North and South Poles.", "Countries near the equator typically experience warm weather throughout the year.", "🌍"],
+            ["invest", "/ɪnˈvest/", "To put money into something with the expectation of profit; to devote time or effort.", "She decided to invest a portion of her savings in the stock market.", "📈"],
+            ["essay", "/ˈeseɪ/", "A short piece of writing on a particular subject, especially one written by a student.", "The professor asked us to write a five-page essay on the causes of World War I.", "📝"],
+            ["dedicate", "/ˈdedɪkeɪt/", "To devote time, effort, or oneself to a particular task or purpose; to address a work to someone.", "She decided to dedicate her life to helping underprivileged children.", "🎁"],
+            ["astrology", "/əˈstrɒlədʒi/", "The study of the movements and positions of celestial bodies believed to influence human affairs.", "Many people read their astrology horoscope in the newspaper every morning.", "♈"],
+            ["attain", "/əˈteɪn/", "To succeed in achieving something, typically after considerable effort.", "After years of hard work, she finally attained the position of senior manager.", "🏆"],
+            ["divisional", "/dɪˈvɪʒənl/", "Relating to or forming a division within an organization.", "The divisional manager presented the quarterly results to the board of directors.", "🏢"],
+            ["ambition", "/æmˈbɪʃn/", "A strong desire to achieve something, typically requiring determination and hard work.", "Her ambition is to become the youngest CEO in the company's history.", "🚀"],
+            ["range", "/reɪndʒ/", "The area of variation between limits; a series of mountains; to vary or arrange.", "The store offers a wide range of products to suit every customer's needs.", "🏔️"],
+            ["ultimate", "/ˈʌltɪmət/", "Being the final or most extreme; the best or most extreme example of something.", "Winning the championship was the ultimate goal of the entire season.", "🥇"],
+            ["counsellor", "/ˈkaʊnsələ(r)/", "A person trained to give guidance on personal, social, or psychological problems.", "The school counsellor helped the student choose the right university courses.", "🗣️"],
+            ["flap", "/flæp/", "To wave or move up and down quickly; a loose piece of material covering an opening.", "The bird flapped its wings vigorously before taking off into the sky.", "🦅"],
+            ["wastage", "/ˈweɪstɪdʒ/", "The amount or proportion of something that is wasted or lost.", "The company implemented new procedures to reduce wastage of raw materials.", "🗑️"],
+            ["earthquake", "/ˈɜːθkweɪk/", "A sudden and violent shaking of the ground caused by movements in the Earth's crust.", "The earthquake destroyed thousands of homes and left many people homeless.", "🌋"],
+            ["device", "/dɪˈvaɪs/", "An object or piece of equipment made for a particular purpose; a method or strategy.", "Although many people enjoy using their smart device before bed, this habit can make it harder to fall asleep.", "📱"],
+            ["regulate", "/ˈregjuleɪt/", "To control or maintain the rate or speed of something; to govern by rule.", "The government's job is to regulate what businesses can and cannot do.", "⚖️"],
+            ["mould", "/məʊld/", "A hollow container used to shape material; a type of fungus; to shape or form.", "The chocolate was poured into a mould to create the desired shape.", "🍫"],
+            ["potential", "/pəˈtenʃl/", "Having or showing the capacity to develop into something in the future; latent ability.", "Another potential problem of family travel is finding transportation that fits everyone.", "🌱"],
+            ["discretion", "/dɪˈskreʃn/", "The quality of behaving or speaking in such a way as to avoid causing offense; the freedom to decide.", "Please use your own discretion when deciding which guests to invite to the private event.", "🤫"],
+            ["ambitious", "/æmˈbɪʃəs/", "Having or showing a strong desire and determination to succeed.", "The ambitious young entrepreneur launched her startup before graduating from college.", "🔥"],
+            ["brief", "/briːf/", "Of short duration; a summary; to give someone essential information.", "The meeting was brief but covered all the important topics efficiently.", "⏱️"],
+            ["dorm", "/dɔːm/", "A building providing sleeping and living quarters for students at a school or college.", "She decorated her dorm room with photos of her friends and family.", "🛏️"],
+            ["substitute", "/ˈsʌbstɪtjuːt/", "To use someone or something in place of another; a person or thing acting as a replacement.", "They are substituting violence for dialogue instead of negotiating peacefully.", "🔄"],
+            ["striking", "/ˈstraɪkɪŋ/", "Attracting attention by reason of being unusual, extreme, or prominent.", "There is a striking resemblance between the two sisters despite their different hairstyles.", "⚡"],
+            ["pirate", "/ˈpaɪərət/", "A person who attacks and robs ships at sea; to use or reproduce something without authorization.", "The movie about pirates became one of the most popular films of the decade.", "🏴‍☠️"],
+            ["refrigerator", "/rɪˈfrɪdʒəreɪtə(r)/", "An appliance or compartment used to keep food and drink cold.", "Please put the milk back in the refrigerator so it doesn't spoil.", "🧊"],
+            ["minimise", "/ˈmɪnɪmaɪz/", "To reduce something, especially something unwanted, to the smallest possible amount or degree.", "The company took steps to minimise the environmental impact of its operations.", "📉"],
+            ["imaginative", "/ɪˈmædʒɪnətɪv/", "Having or showing creativity or inventiveness.", "The children came up with an imaginative solution to the complex puzzle.", "🎨"],
+            ["profit", "/ˈprɒfɪt/", "A financial gain; to obtain an advantage or benefit from something.", "The company reported a record profit for the third consecutive quarter.", "💰"],
+            ["decrepit", "/dɪˈkrepɪt/", "Elderly and infirm; worn out from age or long use.", "The decrepit old building was finally demolished after years of neglect.", "🏚️"],
+            ["ignorant", "/ˈɪgnərənt/", "Lacking knowledge or awareness in general; displaying a lack of knowledge about something specific.", "He was completely ignorant of the fact that the meeting had been cancelled.", "🙈"],
+            ["leopard", "/ˈlepəd/", "A large wild cat with a tawny coat covered in black rosettes, native to Africa and Asia.", "The leopard silently stalked its prey through the tall grass of the savanna.", "🐆"],
+            ["mastery", "/ˈmɑːstəri/", "Comprehensive knowledge or skill in a subject or accomplishment; control over something.", "Her mastery of the violin was evident in every note she played.", "🎻"],
+            ["forecast", "/ˈfɔːkɑːst/", "A prediction or estimate of future conditions; to predict or estimate.", "The weather forecast predicts heavy rain throughout the weekend.", "🌦️"],
+            ["precision", "/prɪˈsɪʒn/", "The quality of being exact and accurate; refinement in measurement or performance.", "The surgeon performed the operation with remarkable precision and care.", "🎯"],
+            ["quote", "/kwəʊt/", "To repeat or copy the words of someone else; a passage or statement quoted; a price estimate.", "She began her speech with a famous quote from Martin Luther King Jr.", "💬"],
+            ["comparative", "/kəmˈpærətɪv/", "Relating to or involving comparison; relatively measured against something else.", "The study offered a comparative analysis of education systems across five countries.", "⚖️"],
+            ["recruit", "/rɪˈkruːt/", "To enlist someone as a member or worker; a newly enlisted member.", "The company plans to recruit fifty new engineers over the next six months.", "🤝"],
+            ["gloss", "/glɒs/", "A shiny smooth surface or appearance; an explanation or annotation; to give a shine to.", "The magazine cover had a glossy finish that made the colors appear vibrant.", "✨"],
+            ["committee", "/kəˈmɪti/", "A group of people appointed for a specific function, typically from a larger body.", "The committee met every Tuesday to discuss the progress of the project.", "👥"],
+            ["exile", "/ˈeksaɪl/", "To send someone away from their native country; the state of being banished.", "The political leader was forced into exile after the revolution.", "🚢"],
+            ["representative", "/ˌreprɪˈzentətɪv/", "A person chosen to act or speak on behalf of others; typical or characteristic.", "The sales representative visited our office to present the new product line.", "🗣️"],
+            ["reverse", "/rɪˈvɜːs/", "The opposite or contrary; moving backward; to turn something the other way around.", "The reverse side of the coin features the image of a national landmark.", "🔄"],
+            ["finance", "/ˈfaɪnæns/", "To provide funding for; the management of money, banking, and investments.", "The government agreed to finance the construction of the new hospital.", "🏦"],
+            ["resign", "/rɪˈzaɪn/", "To voluntarily leave a job or position; to accept something undesirable without protest.", "The minister decided to resign after the scandal became public.", "📝"],
+            ["preparation", "/ˌprepəˈreɪʃn/", "The action or process of making something ready; a substance specially made.", "Thorough preparation is the key to performing well on any important exam.", "📚"],
+            ["eyesight", "/ˈaɪsaɪt/", "The ability to see; the power of vision.", "Reading in dim light will not damage your eyesight, contrary to popular belief.", "👁️"],
+            ["thrive", "/θraɪv/", "To grow, develop, or be successful; to flourish.", "The heart thrives when blood pressure is maintained within a healthy range.", "🌱"],
+            ["judgment", "/ˈdʒʌdʒmənt/", "The ability to make considered decisions; an opinion or evaluation; a legal ruling.", "Her judgment in business matters has always been sharp and reliable.", "⚖️"],
+            ["outward", "/ˈaʊtwəd/", "Directed toward the outside; apparent or visible to others.", "Despite his outward calm, he was feeling extremely nervous inside.", "➡️"],
+            ["consequently", "/ˈkɒnsɪkwəntli/", "As a result; therefore.", "He missed the last train and consequently had to stay overnight in the city.", "🔗"],
+            ["entertain", "/ˌentəˈteɪn/", "To provide amusement or enjoyment; to host guests; to consider an idea.", "The comedian managed to entertain the audience for over two hours.", "🎭"],
+            ["withstand", "/wɪðˈstænd/", "To resist or endure successfully; to remain undamaged under pressure.", "The bridge was designed to withstand earthquakes of up to magnitude seven.", "🛡️"],
+            ["anthropologist", "/ˌænθrəˈpɒlədʒɪst/", "A person who studies anthropology, the science of human societies and cultures.", "The anthropologist spent three years living with the indigenous tribe to study their customs.", "🏺"],
+            ["comb", "/kəʊm/", "A toothed instrument for arranging the hair; a honeycomb; to search thoroughly.", "She used a fine-toothed comb to remove the tangles from her long hair.", "💇"],
+            ["suitably", "/ˈsuːtəbli/", "In a way that is appropriate or fitting for a particular purpose or occasion.", "The candidates were suitably qualified for the senior management position.", "✅"]
+        ];
+
+        const LIST_05 = [
+            ["pulley", "/ˈpʊli/", "A wheel with a grooved rim around which a cord passes, used to change the direction of a force or lift heavy objects.", "The construction workers used a pulley system to hoist the steel beams to the top floor.", "🏗️"],
+            ["privilege", "/ˈprɪvəlɪdʒ/", "A special right or advantage granted to a particular person or group; to grant such a right.", "Having access to higher education is often considered a privilege rather than a right.", "🎁"],
+            ["infrastructure", "/ˈɪnfrəstrʌktʃə(r)/", "The basic physical and organizational structures needed for the operation of a society or enterprise.", "The government invested heavily in improving the country's transport infrastructure.", "🛣️"],
+            ["allocate", "/ˈæləkeɪt/", "To distribute resources or duties for a particular purpose.", "The manager decided to allocate more budget to the marketing department.", "📊"],
+            ["qualification", "/ˏkwɔlɪfɪˈkeɪʃn/", "An official record showing that one has finished a training course or has the necessary skills; a condition that must be met.", "A degree in engineering is a basic qualification for this job.", "🎓"],
+            ["expand", "/ɪkˈspænd/", "To become or make larger or more extensive; to elaborate on details.", "The company plans to expand its operations into Asian markets next year.", "📈"],
+            ["trap", "/træp/", "A device or scheme for catching animals or people; to catch or ensnare.", "The hunters set a trap to catch the wild boar without harming it.", "🪤"],
+            ["intern", "/ɪnˈtɜːn/", "To confine someone, especially in wartime; a student or trainee working temporarily to gain experience.", "She secured an internship at a prestigious law firm for the summer.", "💼"],
+            ["repaint", "/riːˈpeɪnt/", "To paint something again or with a different color.", "They decided to repaint the living room walls a lighter shade of blue.", "🎨"],
+            ["specialist", "/ˈspeʃəlɪst/", "A person who concentrates primarily on a particular subject or activity; an expert.", "You should consult a skin specialist for that persistent rash.", "👨‍⚕️"],
+            ["migratory", "/ˈmaɪgrətəri/", "Moving from one region or habitat to another according to the seasons.", "Swallows are migratory birds that fly south for the winter.", "🕊️"],
+            ["nutrition", "/njuˈtrɪʃn/", "The process of providing or obtaining the food necessary for health and growth.", "Good nutrition is essential for children's physical and mental development.", "🥗"],
+            ["inlet", "/ˈɪnlet/", "A small arm of the sea, a lake, or a river; an opening for fluid to enter a pipe or container.", "The boat sought shelter in a quiet inlet along the coast.", "🏞️"],
+            ["censor", "/ˈsensə(r)/", "To examine and suppress unacceptable parts of a book, film, or news; an official who performs this task.", "The government attempted to censor articles that criticized its policies.", "🚫"],
+            ["widespread", "/ˈwaɪdspred/", "Found or distributed over a large area or number of people.", "There is widespread support for the new environmental regulations.", "🌍"],
+            ["hazard", "/ˈhæzəd/", "A danger or risk; to venture to express or do something risky.", "Slippery floors are a common hazard in commercial kitchens.", "⚠️"],
+            ["rear", "/rɪə(r)/", "Located at the back; the back part of something; to bring up a child or animal.", "Please exit through the rear door of the building.", "🔙"],
+            ["shareholder", "/ˈʃeəhəʊldə(r)/", "An owner of shares in a company.", "The shareholders voted against the proposed merger at the annual meeting.", "💹"],
+            ["bid", "/bɪd/", "An offer of a price, especially at an auction; to offer a price.", "He made a successful bid for the antique vase at the auction.", "🔨"],
+            ["alight", "/əˈlaɪt/", "On fire; to descend from a vehicle or aircraft; to land.", "Passengers should wait until the bus comes to a complete stop before alighting.", "🚌"],
+            ["credit", "/ˈkredɪt/", "To attribute something to someone; trust in a person's ability to pay; praise or honor.", "She credited her success to the support of her mentors.", "💳"],
+            ["shrewd", "/ʃruːd/", "Having sharp powers of judgment; astute.", "He is a shrewd businessman who always spots a good deal.", "🦊"],
+            ["desert", "/ˈdezət/", "A barren area of landscape; arid; to abandon a person or place.", "The Sahara is the largest hot desert in the world.", "🏜️"],
+            ["conclude", "/kənˈkluːd/", "To bring to an end; to arrive at a judgment or opinion by reasoning.", "The meeting concluded with a vote on the new policy.", "🏁"],
+            ["explosive", "/ɪkˈspləusɪv/", "A substance that can explode; liable to burst out suddenly or violently.", "The police safely disposed of the explosive found in the package.", "💣"],
+            ["inherent", "/ɪnˈhɪərənt/", "Existing in something as a permanent, essential, or characteristic attribute.", "There are inherent risks in any investment strategy.", "🧬"],
+            ["world-wide", "/ˈwɜːldwaɪd/", "Extending or applicable throughout the whole world.", "The pandemic caused worldwide disruption to travel and trade.", "🌐"],
+            ["grope", "/grəup/", "To feel about uncertainly with the hands; to search blindly.", "He groped for the light switch in the dark room.", "🌑"],
+            ["lever", "/ˈliːvə(r)/", "A rigid bar used to exert pressure; to move or pry with a lever.", "Use a lever to lift the heavy stone off the ground.", "🔧"],
+            ["ethical", "/ˈeθɪkl/", "Relating to moral principles or the branch of knowledge dealing with these.", "The company has strict ethical guidelines regarding data privacy.", "⚖️"],
+            ["improvement", "/ɪmˈpruːvmənt/", "The action of making something better; a feature that makes something better.", "There has been a significant improvement in his grades this semester.", "📈"],
+            ["vacant", "/ˈveɪkənt/", "Not occupied; empty of thought or expression.", "The apartment has been vacant for months since the tenants moved out.", "🏠"],
+            ["truant", "/ˈtruːənt/", "To stay away from school without permission; a student who does this.", "Students who truant frequently may fall behind in their studies.", "🏫"],
+            ["scandal", "/ˈskændl/", "An action or event regarded as morally or legally wrong and causing general public outrage.", "The political scandal dominated the news headlines for weeks.", "📰"],
+            ["latent", "/ˈleɪtnt/", "Existing but not yet developed or manifest; hidden.", "The virus can remain latent in the body for years before causing symptoms.", "😴"],
+            ["tenant", "/ˈtenənt/", "A person who occupies land or property rented from a landlord.", "The tenant signed a one-year lease for the downtown apartment.", "🔑"],
+            ["psychiatric", "/ˌsaɪkiˈætrɪk/", "Relating to the treatment of mental illness.", "She sought psychiatric help to cope with her anxiety disorder.", "🧠"],
+            ["campfire", "/ˈkæmpfaɪə(r)/", "An outdoor fire for cooking or warmth, typically made by campers.", "We sat around the campfire telling stories late into the night.", "🔥"],
+            ["bolster", "/ˈbəulstə(r)/", "To support or strengthen; a long thick pillow.", "The good news helped bolster her confidence during the difficult time.", "🛡️"],
+            ["immigrant", "/ˈɪmɪgrənt/", "A person who comes to live permanently in a foreign country.", "Many immigrants contribute significantly to the cultural diversity of their new home.", "✈️"],
+            ["sequence", "/ˈsiːkwəns/", "A particular order in which related things follow each other.", "Please follow the sequence of steps outlined in the manual.", "🔢"],
+            ["ecosystem", "/ˈiːkəusɪstəm/", "A biological community of interacting organisms and their physical environment.", "Pollution can have devastating effects on the local ecosystem.", "🌿"],
+            ["concern", "/kənˈsɜːn/", "To relate to; to worry; anxiety or interest.", "Her main concern was the safety of her children.", "😟"],
+            ["transfer", "/trænsˈfɜː(r)/", "To move from one place to another; the act of moving.", "He decided to transfer to a university closer to his hometown.", "🔄"],
+            ["exotic", "/ɪgˈzɒtɪk/", "Originating in or characteristic of a distant foreign country; strikingly unusual.", "The garden was filled with exotic plants from tropical regions.", "🌺"],
+            ["evaporate", "/ɪˈvæpəreɪt/", "To turn from liquid into vapor; to disappear gradually.", "The water will evaporate if you leave the pot on the stove.", "💨"],
+            ["destiny", "/ˈdestɪni/", "The events that will necessarily happen to a particular person or thing in the future.", "She believed it was her destiny to become a great artist.", "🌟"],
+            ["hide", "/haɪd/", "To put or keep out of sight; animal skin.", "The children decided to hide in the closet during the game.", "🙈"],
+            ["former", "/ˈfɔːmə(r)/", "Having previously been a particular thing; the first of two things mentioned.", "The former president attended the ceremony as a guest.", "👔"],
+            ["awful", "/ˈɔːfl/", "Very bad or unpleasant.", "The weather was awful, with heavy rain and strong winds.", "⛈️"],
+            ["sore", "/sɔː(r)/", "Painful or tender; a painful spot on the body.", "My muscles were sore after the intense workout yesterday.", "🤕"],
+            ["virtually", "/ˈvɜːtʃuəli/", "Nearly; almost entirely.", "Virtually everyone agrees that climate change is a serious issue.", "👥"],
+            ["tangibly", "/ˈtændʒəbli/", "In a way that is perceptible by touch; clearly and definitely.", "The benefits of the new policy were tangibly felt by the employees.", "👐"],
+            ["windscreen", "/ˈwɪndskriːn/", "The front window of a motor vehicle.", "A stone cracked the windscreen while we were driving on the highway.", "🚗"],
+            ["decent", "/ˈdiːsnt/", "Conforming to standards of propriety or good taste; satisfactory.", "He is a decent man who always helps his neighbors.", "👍"],
+            ["alluvial", "/əˈluːviəl/", "Relating to clay, silt, etc., deposited by flowing water; sediment deposited by water.", "The alluvial soil in the river valley is very fertile for farming.", "🌾"],
+            ["slum", "/slʌm/", "A squalid and overcrowded urban street or district inhabited by very poor people.", "The charity works to improve living conditions in the city's slums.", "🏚️"],
+            ["distill", "/dɪˈstɪl/", "To purify a liquid by heating and cooling; to extract the essential meaning.", "Whiskey is produced by distilling fermented grain mash.", "🥃"],
+            ["economical", "/ˏiːkəˈnɒmɪkl/", "Giving good value or service in relation to the amount of money, time, or effort spent.", "Hybrid cars are more economical than traditional gasoline vehicles.", "💰"],
+            ["fate", "/feɪt/", "The development of events outside a person's control, regarded as determined by a supernatural power.", "Some believe that fate brought them together by chance.", "🎲"],
+            ["medication", "/ˌmedɪˈkeɪʃn/", "A substance used for medical treatment.", "The doctor prescribed medication to help lower his blood pressure.", "💊"],
+            ["target", "/ˈtɑːgɪt/", "An objective or result towards which efforts are directed; to aim at.", "Our target is to increase sales by ten percent this quarter.", "🎯"],
+            ["independent", "/ˏɪndɪˈpendənt/", "Free from outside control; not depending on another's authority; a person who votes independently.", "She is an independent thinker who forms her own opinions.", "🗽"],
+            ["radius", "/ˈreɪdɪəs/", "A straight line from the center to the circumference of a circle; an area within a specified distance.", "The radius of the circle is half the length of the diameter.", "⭕"],
+            ["fossil", "/ˈfɒsl/", "The remains or impression of a prehistoric organism preserved in petrified form; a person resistant to change.", "Paleontologists study fossils to understand ancient life forms.", "🦴"],
+            ["shade", "/ʃeɪd/", "Comparative darkness caused by interception of light; a slight difference in color; to screen from light.", "We sat in the shade of the large oak tree to escape the heat.", "🌳"],
+            ["headmaster", "/ˏhedˈmɑːstə(r)/", "The male principal of a school.", "The headmaster announced the new school rules at the assembly.", "👨‍🏫"],
+            ["wean", "/wiːn/", "To accustom an infant or young mammal to food other than its mother's milk; to detach from dependence.", "The farmer began to wean the calves from their mothers.", "🐄"],
+            ["comprise", "/kəmˈpraɪz/", "To consist of; be made up of.", "The committee comprises representatives from each department.", "🧩"],
+            ["stable", "/ˈsteɪbl/", "Firmly fixed; not likely to change or fail; a building for horses.", "The patient's condition is now stable after the surgery.", "🐎"],
+            ["disappointing", "/ˏdɪsəˈpɔɪntɪŋ/", "Failing to fulfill one's hopes or expectations.", "The movie's ending was disappointing after such a promising start.", "😞"],
+            ["delta", "/ˈdeltə/", "A triangular tract of sediment deposited at the mouth of a river; the fourth letter of the Greek alphabet.", "The Nile Delta is one of the most fertile regions in Egypt.", "🔻"],
+            ["urban", "/ˈɜːbən/", "Relating to, or characteristic of, a town or city.", "Urban planning is crucial for managing population growth in cities.", "🏙️"],
+            ["compliment", "/ˈkɒmplɪmənt/", "A polite expression of praise or admiration.", "She received many compliments on her presentation skills.", "👏"],
+            ["execution", "/ˏeksɪˈkjuːʃn/", "The carrying out or putting into effect of a plan or order; the putting to death of a person as a legal punishment.", "The success of the project depended on the precise execution of the strategy.", "✅"]
+        ];
+
+        const LIST_06 = [
+            ["heritage", "/ˈherɪtɪdʒ/", "Valued objects and qualities such as cultural traditions and historic buildings that have been passed down from previous generations.", "The ancient temple is a protected cultural heritage site.", "🏛️"],
+            ["appropriate", "/əˈprəʊpriət/", "Suitable or proper in the circumstances.", "Please wear appropriate clothing for the formal interview.", "👔"],
+            ["annual", "/ˈænjuəl/", "Occurring once every year.", "The company holds its annual general meeting every September.", "📅"],
+            ["depict", "/dɪˈpɪkt/", "To represent or show something in a picture or story.", "The painting depicts a peaceful rural landscape at sunset.", "🎨"],
+            ["literacy", "/ˈlɪtərəsi/", "The ability to read and write.", "Improving adult literacy is a key goal of the education program.", "📖"],
+            ["calculate", "/ˈkælkjuleɪt/", "To determine the amount or number of something mathematically.", "We need to calculate the total cost of the project before proceeding.", "🧮"],
+            ["luxury", "/ˈlʌkʃəri/", "The state of great comfort and extravagant living.", "Staying in a five-star hotel is a luxury not everyone can afford.", "💎"],
+            ["souvenir", "/ˌsuːvəˈnɪə(r)/", "A thing that is kept as a reminder of a person, place, or event.", "She bought a small magnet as a souvenir of her trip to Paris.", "🎁"],
+            ["purchase", "/ˈpɜːtʃəs/", "To acquire something by paying for it.", "He decided to purchase a new laptop for his studies.", "🛒"],
+            ["constant", "/ˈkɒnstənt/", "Occurring continuously over a period of time; unchanging.", "The constant noise from the construction site made it hard to concentrate.", "⏱️"],
+            ["dormancy", "/ˈdɔːmənsi/", "A period in an organism's life cycle when growth and physical activity are temporarily stopped.", "The seeds remain in dormancy until the spring rains arrive.", "🌱"],
+            ["particular", "/pəˈtɪkjələ(r)/", "Used to single out an individual member of a specified group or class.", "Is there a particular restaurant you would like to go to?", "🎯"],
+            ["subscription", "/səbˈskrɪpʃn/", "An arrangement to receive something regularly by paying in advance.", "I renewed my magazine subscription for another year.", "📰"],
+            ["pitch", "/pɪtʃ/", "The quality of a sound governed by the rate of vibrations; a playing field.", "The goalkeeper managed to pitch the ball all the way to the other side of the field.", "⚾"],
+            ["entitle", "/ɪnˈtaɪtl/", "To give someone a legal right or a just claim to receive or do something.", "This ticket entitles you to a free meal at the restaurant.", "🎫"],
+            ["shutter", "/ˈʃʌtə(r)/", "A movable cover for a window; the device in a camera that exposes the sensor to light.", "He closed the wooden shutters to keep the afternoon heat out.", "🪟"],
+            ["demolish", "/dɪˈmɒlɪʃ/", "To pull or knock down a building; to defeat or destroy completely.", "The old factory was demolished to make way for a new shopping center.", "🏗️"],
+            ["durable", "/ˈdjʊərəbl/", "Able to withstand wear, pressure, or damage; long-lasting.", "These hiking boots are made from durable materials to last for years.", "🥾"],
+            ["cope", "/kəʊp/", "To deal effectively with something difficult.", "It can be hard to cope with the stress of a demanding job.", "🧘"],
+            ["circulation", "/ˌsɜːkjəˈleɪʃn/", "The movement of blood through the body; the distribution of something, such as a newspaper.", "Regular exercise improves blood circulation throughout the body.", "🩸"],
+            ["tradition", "/trəˈdɪʃn/", "The transmission of customs or beliefs from generation to generation.", "It is a family tradition to gather for dinner on Sundays.", "👨‍👩‍👧‍👦"],
+            ["benefit", "/ˈbenɪfɪt/", "An advantage or profit gained from something.", "Regular exercise has numerous health benefits.", "💡"],
+            ["decay", "/dɪˈkeɪ/", "The process of rotting or decomposition; a gradual decline in quality.", "Sugar can cause tooth decay if proper dental hygiene is not maintained.", "🦷"],
+            ["distribution", "/ˌdɪstrɪˈbjuːʃn/", "The action of sharing something out among a number of recipients.", "The distribution of wealth in the country is highly unequal.", "📦"],
+            ["defect", "/ˈdiːfekt/", "A shortcoming, imperfection, or lack.", "The car was recalled due to a manufacturing defect in the brakes.", "⚠️"],
+            ["oppose", "/əˈpəʊz/", "To disapprove of and attempt to prevent, especially by argument.", "Many residents oppose the construction of the new highway through the park.", "🛑"],
+            ["statistics", "/stəˈtɪstɪks/", "The practice or science of collecting and analyzing numerical data.", "According to recent statistics, the unemployment rate has dropped.", "📊"],
+            ["stuffy", "/ˈstʌfi/", "Lacking fresh air; dull and conventional.", "The room felt stuffy and uncomfortable after all the windows were closed.", "🥵"],
+            ["approximately", "/əˈprɒksɪmətli/", "Used to show that something is almost, but not completely, accurate or exact.", "The journey will take approximately two hours by train.", "⏱️"],
+            ["excusable", "/ɪkˈskjuːzəbl/", "Able to be forgiven or justified.", "Being late is excusable if you have a valid medical emergency.", "🙏"],
+            ["propose", "/prəˈpəʊz/", "To put forward an idea or plan for consideration.", "I propose we take a short break before continuing the meeting.", "💍"],
+            ["ornament", "/ˈɔːnəmənt/", "A thing used to make something look more attractive but usually having no practical purpose.", "The Christmas tree was covered in shiny ornaments.", "🎄"],
+            ["energetic", "/ˌenəˈdʒetɪk/", "Showing or involving great activity or vitality.", "The energetic puppy ran around the yard all afternoon.", "⚡"],
+            ["atmospheric", "/ˌætməsˈferɪk/", "Relating to the atmosphere; having a distinctive and evocative mood.", "The atmospheric lighting in the restaurant created a romantic mood.", "🌫️"],
+            ["cooperative", "/kəʊˈɒpərətɪv/", "Involving mutual assistance in working toward a common goal.", "The students were very cooperative during the group project.", "🤝"],
+            ["corrode", "/kəˈrəʊd/", "To destroy or damage slowly by chemical action.", "Salt water can corrode metal structures over time.", "🧪"],
+            ["honour", "/ˈɒnə(r)/", "High respect; great esteem.", "It is a great honour to be invited to speak at this conference.", "🎖️"],
+            ["except", "/ɪkˈsept/", "Not including; other than.", "Everyone passed the exam except for one student.", "❌"],
+            ["soluble", "/ˈsɒljəbl/", "Able to be dissolved, especially in water.", "Sugar is highly soluble in hot water.", "💧"],
+            ["administration", "/ədˌmɪnɪˈstreɪʃn/", "The process or activity of running a business or organization.", "The new administration implemented several economic reforms.", "🏛️"],
+            ["environment", "/ɪnˈvaɪrənmənt/", "The surroundings or conditions in which a person, animal, or plant lives.", "We must take action to protect the natural environment.", "🌍"],
+            ["license", "/ˈlaɪsns/", "A permit from an authority to own or use something or do a particular thing.", "You need a valid driver's license to operate a motor vehicle.", "🪪"],
+            ["underline", "/ˌʌndəˈlaɪn/", "To draw a line under a word or passage; to emphasize.", "Please underline the key terms in the text for easy reference.", "✏️"],
+            ["activate", "/ˈæktɪveɪt/", "To make active or operative; to trigger a process.", "Press the red button to activate the emergency alarm system.", "🔴"],
+            ["major", "/ˈmeɪdʒə(r)/", "Important, serious, or significant.", "Climate change is a major global challenge that requires immediate action.", "🌍"],
+            ["specific", "/spəˈsɪfɪk/", "Clearly defined or identified; precise.", "Please provide specific details about the issue you are experiencing.", "🎯"],
+            ["objective", "/əbˈdʒektɪv/", "Not influenced by personal feelings; a goal or aim.", "The main objective of this project is to reduce carbon emissions.", "🎯"],
+            ["concentrate", "/ˈkɒnsntreɪt/", "To focus all one's attention or mental effort.", "It is difficult to concentrate on studying when there is loud music playing.", "🧠"],
+            ["conflict", "/ˈkɒnflɪkt/", "A serious disagreement or argument; a clash of interests.", "The two countries are trying to resolve the border conflict through diplomacy.", "⚔️"],
+            ["antidote", "/ˈæntɪdəʊt/", "A medicine taken to counteract a particular poison.", "There is no known antidote for this specific venom.", "🧪"],
+            ["discover", "/dɪˈskʌvə(r)/", "To find unexpectedly or during a search.", "Scientists hope to discover a cure for the disease in the near future.", "🔍"],
+            ["necessarily", "/ˈnesəsərəli/", "As a necessary result; inevitably.", "Just because it is expensive does not necessarily mean it is of high quality.", "⚖️"],
+            ["continent", "/ˈkɒntɪnənt/", "One of the main continuous expanses of land on Earth.", "Africa is the second largest continent in the world.", "🌍"],
+            ["turret", "/ˈtʌrət/", "A small tower on top of a larger tower or at the corner of a building.", "The castle featured a stone turret with a spiral staircase.", "🏰"],
+            ["elastic", "/ɪˈlæstɪk/", "Able to resume its normal shape spontaneously after contraction or distortion.", "The waistband of the pants is made of elastic material for comfort.", "🩳"],
+            ["enhance", "/ɪnˈhɑːns/", "To intensify, increase, or further improve the quality or value of something.", "Adding a pinch of salt will enhance the flavor of the dish.", "✨"],
+            ["demonstration", "/ˌdemənˈstreɪʃn/", "The action of showing the existence or truth of something by giving proof.", "The teacher gave a clear demonstration of how the experiment works.", "🧪"],
+            ["interrupt", "/ˌɪntəˈrʌpt/", "To stop the continuous progress of an activity or process.", "Please do not interrupt the speaker while they are presenting.", "🤫"],
+            ["redundant", "/rɪˈdʌndənt/", "Not or no longer needed or useful; superfluous.", "The new software update made the old security program redundant.", "🗑️"],
+            ["mishandle", "/ˌmɪsˈhændl/", "To manage or deal with something badly or incorrectly.", "If you mishandle the fragile equipment, it will break easily.", "⚠️"],
+            ["discovery", "/dɪˈskʌvəri/", "The action or process of finding or learning something for the first time.", "The discovery of penicillin revolutionized modern medicine.", "💡"],
+            ["alcohol", "/ˈælkəhɒl/", "A colorless volatile flammable liquid produced by natural fermentation; intoxicating drinks.", "The doctor advised him to reduce his alcohol consumption.", "🍷"],
+            ["suppression", "/səˈpreʃn/", "The action of suppressing something such as an activity or publication.", "The suppression of free speech is a serious violation of human rights.", "🤐"],
+            ["mainly", "/ˈmeɪnli/", "For the most part; principally.", "The diet consists mainly of fresh fruits and vegetables.", "🥗"],
+            ["property", "/ˈprɒpəti/", "A thing or things belonging to someone; a building or piece of land.", "The hotel is a privately owned property.", "🏠"],
+            ["naked", "/ˈneɪkɪd/", "Without clothing; not covered by a usual or appropriate covering.", "The naked eye cannot see most bacteria without a microscope.", "👁️"],
+            ["feature", "/ˈfiːtʃə(r)/", "A distinctive attribute or aspect of something.", "One of the best features of this phone is its long battery life.", "📱"],
+            ["lens", "/lenz/", "A piece of curved glass or plastic that focuses light to make objects appear larger or clearer.", "The photographer changed the lens to capture a wider angle of the landscape.", "📷"],
+            ["coordinator", "/kəʊˈɔːdɪneɪtə(r)/", "A person who organizes the different elements of a complex activity.", "The event coordinator ensured that all vendors arrived on time.", "📋"],
+            ["nourish", "/ˈnʌrɪʃ/", "To provide with the food or other substances necessary for growth and health.", "A balanced diet is essential to nourish the body and mind.", "🥦"],
+            ["crisp", "/krɪsp/", "Firm, dry, and brittle; pleasantly hard and easily broken.", "The autumn air was crisp and cool.", "🍂"],
+            ["guilty", "/ˈgɪlti/", "Culpable of or responsible for a specified wrongdoing.", "The jury found the defendant guilty of the crime.", "⚖️"],
+            ["crack", "/kræk/", "A line on the surface of something along which it has split without breaking into separate parts.", "There is a small crack in the windshield of the car.", "🕸️"]
+        ];
+
+        /* ==========================================================================
+           👉 REGISTER YOUR LISTS HERE — just add them to this ONE array.
+           Example for 48 lists: [LIST_01, LIST_02, LIST_03, ... , LIST_48]
+           ========================================================================== */
+        const RAW_LISTS = [LIST_01, LIST_02, LIST_03, LIST_04, LIST_05, LIST_06];
+
+        /* ---------- SMART AUTO-GENERATOR (do not edit) ---------- */
+        const LISTS = {};
+        const listSelector = document.getElementById('list-selector');
+        RAW_LISTS.forEach((raw, i) => {
+            const id = 'list' + String(i + 1).padStart(2, '0');
+            LISTS[id] = {
+                name: '📘 List ' + String(i + 1).padStart(2, '0') + ' (' + raw.length + ' words)',
+                words: raw.map(w => ({ word: w[0], phonetic: w[1], meaning: w[2], example: w[3], emoji: w[4] }))
+            };
+            const opt = document.createElement('option');
+            opt.value = id;
+            opt.textContent = LISTS[id].name;
+            listSelector.appendChild(opt);
+        });
+
+        let currentList = LISTS[Object.keys(LISTS)[0]].words;
+        let currentMode = 'flash';
+
+        /* ==========================================================================
+           2. STATE
+           ========================================================================== */
+        const STORAGE_KEY = 'mastery_pro_v2';
+        let state = { xp: 0, streak: 1, wordsLearned: 0, totalQuizAnswers: 0, correctQuizAnswers: 0, dailyCount: 0, lastActiveDate: new Date().toDateString() };
+
+        function loadState() {
+            try {
+                const saved = localStorage.getItem(STORAGE_KEY);
+                if (saved) {
+                    const p = JSON.parse(saved);
+                    if (p.lastActiveDate !== new Date().toDateString()) { p.dailyCount = 0; p.lastActiveDate = new Date().toDateString(); p.streak = (p.streak || 0) + 1; }
+                    state = { ...state, ...p };
+                }
+            } catch (e) { console.warn('State load failed', e); }
+            updateUIStats();
+        }
+        function saveState() { try { localStorage.setItem(STORAGE_KEY, JSON.stringify(state)); } catch (e) { } updateUIStats(); }
+        function updateUIStats() {
+            const acc = state.totalQuizAnswers > 0 ? Math.round((state.correctQuizAnswers / state.totalQuizAnswers) * 100) : 0;
+            document.getElementById('head-xp').textContent = state.xp;
+            document.getElementById('head-streak').textContent = state.streak;
+            document.getElementById('side-xp').textContent = state.xp;
+            document.getElementById('side-words').textContent = state.wordsLearned;
+            document.getElementById('side-streak').textContent = state.streak + ' days';
+            document.getElementById('dash-xp').textContent = state.xp;
+            document.getElementById('dash-streak').textContent = state.streak;
+            document.getElementById('dash-words').textContent = state.wordsLearned;
+            document.getElementById('dash-accuracy').textContent = acc + '%';
+            document.getElementById('daily-count').textContent = state.dailyCount;
+            document.getElementById('daily-progress').style.width = Math.min((state.dailyCount / 10) * 100, 100) + '%';
+        }
+        function bumpProgress() { state.dailyCount++; state.xp += 10; saveState(); }
+
+        /* ==========================================================================
+           3. NAVIGATION + AUDIO
+           ========================================================================== */
+        const sidebar = document.getElementById('sidebar');
+        const overlay = document.getElementById('overlay');
+        function toggleMenu(open) { sidebar.classList.toggle('open', open); overlay.classList.toggle('show', open); }
+        document.getElementById('hamb').addEventListener('click', () => toggleMenu(!sidebar.classList.contains('open')));
+        document.getElementById('mobileHamb').addEventListener('click', () => toggleMenu(!sidebar.classList.contains('open')));
+        overlay.addEventListener('click', () => toggleMenu(false));
+
+        document.querySelectorAll('.nav-link').forEach(btn => {
+            btn.addEventListener('click', () => {
+                document.querySelectorAll('.nav-link').forEach(b => b.classList.remove('active'));
+                document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
+                btn.classList.add('active');
+                document.getElementById('view-' + btn.dataset.view).classList.add('active');
+                const titles = { dashboard: 'Dashboard', hub: 'Mastery Hub', crossword: 'Crossword' };
+                document.getElementById('page-title').textContent = titles[btn.dataset.view] || 'Mastery Pro';
+                toggleMenu(false);
+            });
+        });
+
+        document.getElementById('cta-start').addEventListener('click', () => {
+            document.querySelector('.nav-link[data-view="hub"]').click();
+        });
+
+        document.querySelectorAll('.tab-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+                document.querySelectorAll('.hub-mode').forEach(m => m.style.display = 'none');
+                btn.classList.add('active');
+                currentMode = btn.dataset.mode;
+                document.getElementById('mode-' + currentMode).style.display = 'block';
+                if (currentMode === 'flash') renderFlashcard();
+                if (currentMode === 'quiz') renderQuiz();
+                if (currentMode === 'flow') renderFlow();
+            });
+        });
+
+        listSelector.addEventListener('change', (e) => {
+            currentList = LISTS[e.target.value].words;
+            resetAllModes();
+        });
+
+        function resetAllModes() {
+            fcIndex = 0; renderFlashcard();
+            qIndex = 0; shuffledVocab = [...currentList].sort(() => Math.random() - 0.5); renderQuiz();
+            flowIndex = 0; flowStreak = 0; flowCorrect = 0; renderFlow();
+        }
+
+        function speakText(text) {
+            if ('speechSynthesis' in window) {
+                window.speechSynthesis.cancel();
+                const u = new SpeechSynthesisUtterance(text);
+                u.lang = 'en-US'; u.rate = 0.9;
+                window.speechSynthesis.speak(u);
+            }
+        }
+
+        /* ==========================================================================
+           4. FLASHCARD
+           ========================================================================== */
+        let fcIndex = 0;
+        const fcCard = document.getElementById('fc-card');
+        function renderFlashcard() {
+            if (!currentList.length) return;
+            const w = currentList[fcIndex % currentList.length];
+            document.getElementById('fc-word').textContent = w.word;
+            document.getElementById('fc-phon').textContent = w.phonetic;
+            document.getElementById('fc-mean').textContent = w.meaning;
+            document.getElementById('fc-ex').textContent = '"' + w.example + '"';
+            fcCard.classList.remove('flip');
+        }
+        document.getElementById('speak-word').addEventListener('click', (e) => { e.stopPropagation(); speakText(currentList[fcIndex % currentList.length].word); });
+        document.getElementById('speak-sentence').addEventListener('click', (e) => { e.stopPropagation(); speakText(currentList[fcIndex % currentList.length].example); });
+        document.getElementById('fc-box').addEventListener('click', () => fcCard.classList.toggle('flip'));
+        document.getElementById('fc-prev').addEventListener('click', () => { fcIndex = (fcIndex - 1 + currentList.length) % currentList.length; renderFlashcard(); });
+        document.getElementById('fc-next').addEventListener('click', () => { fcIndex = (fcIndex + 1) % currentList.length; renderFlashcard(); });
+
+        /* ==========================================================================
+           5. QUIZ
+           ========================================================================== */
+        let qIndex = 0;
+        let shuffledVocab = [...currentList].sort(() => Math.random() - 0.5);
+        const qLeft = document.getElementById('q-left');
+        function renderQuiz() {
+            if (!currentList.length) return;
+            const current = shuffledVocab[qIndex % currentList.length];
+            document.getElementById('q-word').textContent = current.word;
+            document.getElementById('q-phon').textContent = current.phonetic;
+            document.getElementById('q-prog').style.width = ((qIndex % currentList.length) / currentList.length * 100) + '%';
+            qLeft.classList.remove('neural-locked');
+            let options = [current.meaning];
+            let guard = 0;
+            while (options.length < 4 && guard < 100) {
+                const rand = currentList[Math.floor(Math.random() * currentList.length)].meaning;
+                if (!options.includes(rand)) options.push(rand);
+                guard++;
+            }
+            options.sort(() => Math.random() - 0.5);
+            const optsEl = document.getElementById('q-opts');
+            optsEl.innerHTML = '';
+            const letters = ['A', 'B', 'C', 'D'];
+            options.forEach((opt, i) => {
+                const btn = document.createElement('button');
+                btn.className = 'opt-btn';
+                btn.innerHTML = '<span class="opt-letter">' + letters[i] + '</span><span>' + opt + '</span>';
+                btn.addEventListener('click', () => handleAnswer(btn, opt === current.meaning, current));
+                optsEl.appendChild(btn);
+            });
+        }
+        function handleAnswer(btn, isCorrect, currentWord) {
+            document.querySelectorAll('.opt-btn').forEach(b => b.style.pointerEvents = 'none');
+            state.totalQuizAnswers++;
+            if (isCorrect) {
+                btn.classList.add('correct');
+                state.correctQuizAnswers++; state.wordsLearned++;
+                triggerNeuralLock(currentWord); bumpProgress();
+            } else {
+                btn.classList.add('wrong');
+                document.querySelectorAll('.opt-btn').forEach(b => {
+                    if (b.querySelector('span:last-child').textContent === currentWord.meaning) b.classList.add('correct');
+                });
+            }
+            saveState();
+            setTimeout(() => { qIndex++; document.querySelectorAll('.opt-btn').forEach(b => b.style.pointerEvents = 'auto'); renderQuiz(); }, isCorrect ? 2500 : 1500);
+        }
+        function triggerNeuralLock(word) {
+            qLeft.classList.add('neural-locked');
+            document.getElementById('anchor-emoji').textContent = word.emoji;
+            document.getElementById('anchor-sentence').textContent = '"' + word.example + '"';
+            speakText(word.word);
+            if (navigator.vibrate) navigator.vibrate(50);
+        }
+
+        /* ==========================================================================
+           6. FLOW
+           ========================================================================== */
+        let flowIndex = 0, flowStreak = 0, flowCorrect = 0;
+        function renderFlow() {
+            if (!currentList.length) return;
+            const w = currentList[flowIndex % currentList.length];
+            const safe = w.word.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+            const regex = new RegExp('\\b' + safe + '\\b', 'i');
+            const cloze = w.example.replace(regex, '<span class="flow-blank" id="flow-blank">_______</span>');
+            document.getElementById('flow-sentence').innerHTML = cloze;
+            const input = document.getElementById('flow-input');
+            input.value = ''; input.disabled = false; input.classList.remove('shake'); input.focus();
+            document.getElementById('flow-streak').textContent = flowStreak;
+            document.getElementById('flow-correct').textContent = flowCorrect;
+            document.getElementById('flow-progress').textContent = (flowIndex % currentList.length + 1) + '/' + currentList.length;
+        }
+        function checkFlow() {
+            const w = currentList[flowIndex % currentList.length];
+            const input = document.getElementById('flow-input');
+            const val = input.value.trim().toLowerCase();
+            if (val === w.word.toLowerCase()) {
+                flowStreak++; flowCorrect++; state.wordsLearned++;
+                const blank = document.getElementById('flow-blank');
+                if (blank) { blank.textContent = w.word; blank.classList.add('filled'); }
+                input.disabled = true; bumpProgress(); speakText(w.example);
+                setTimeout(() => { flowIndex++; renderFlow(); }, 1800);
+            } else {
+                flowStreak = 0;
+                input.classList.add('shake');
+                setTimeout(() => input.classList.remove('shake'), 400);
+            }
+            document.getElementById('flow-streak').textContent = flowStreak;
+            document.getElementById('flow-correct').textContent = flowCorrect;
+        }
+        document.getElementById('flow-submit').addEventListener('click', checkFlow);
+        document.getElementById('flow-input').addEventListener('keydown', (e) => { if (e.key === 'Enter') checkFlow(); });
+
+        /* ==========================================================================
+           7. CROSSWORD + VIRTUAL KEYBOARD
+           ========================================================================== */
+        const CW_PUZZLE = {
+            rows: 7, cols: 7,
+            words: [
+                { word: "EXACT", row: 0, col: 0, dir: "across", clue: "Precise and accurate" },
+                { word: "LACK", row: 0, col: 4, dir: "down", clue: "To be without" },
+                { word: "ARGUE", row: 2, col: 0, dir: "across", clue: "To debate or persuade" },
+                { word: "FAIR", row: 2, col: 2, dir: "down", clue: "Impartial and just" },
+                { word: "YIELD", row: 4, col: 1, dir: "across", clue: "To produce or give way" },
+                { word: "WAGE", row: 4, col: 3, dir: "down", clue: "Payment for work" }
+            ]
+        };
+        let cwInputs = {}, cwActive = null, cwSelected = null;
+
+        function initVirtualKeyboard() {
+            const rows = [['Q', 'W', 'E', 'R', 'T', 'Y', 'U', 'I', 'O', 'P'], ['A', 'S', 'D', 'F', 'G', 'H', 'J', 'K', 'L'], ['DEL', 'Z', 'X', 'C', 'V', 'B', 'N', 'M']];
+            rows.forEach((row, i) => {
+                const rowEl = document.getElementById('vk-row-' + (i + 1));
+                row.forEach(key => {
+                    const btn = document.createElement('button');
+                    btn.className = 'vk-key' + (key === 'DEL' ? ' del' : '');
+                    btn.textContent = key;
+                    btn.addEventListener('click', (e) => {
+                        e.preventDefault();
+                        if (!cwSelected) return;
+                        const r = cwSelected.r, c = cwSelected.c;
+                        const inp = document.querySelector('.cw-cell[data-r="' + r + '"][data-c="' + c + '"] input');
+                        if (!inp) return;
+                        if (key === 'DEL') { inp.value = ''; cwInputs[r + ',' + c] = ''; }
+                        else { inp.value = key; cwInputs[r + ',' + c] = key; advanceCW(r, c, 1); }
+                    });
+                    rowEl.appendChild(btn);
+                });
+            });
+        }
+        function cellInWord(r, c, w) { return w.dir === 'across' ? (r === w.row && c >= w.col && c < w.col + w.word.length) : (c === w.col && r >= w.row && r < w.row + w.word.length); }
+        function renderCrossword() {
+            const p = CW_PUZZLE, grid = document.getElementById('cw-grid');
+            grid.style.gridTemplateColumns = 'repeat(' + p.cols + ', 38px)';
+            grid.innerHTML = '';
+            const hasLetter = (r, c) => p.words.some(w => cellInWord(r, c, w));
+            let num = 1;
+            p.words.forEach(w => w.num = null);
+            for (let r = 0; r < p.rows; r++) {
+                for (let c = 0; c < p.cols; c++) {
+                    if (!hasLetter(r, c)) continue;
+                    const startsA = (c === 0 || !hasLetter(r, c - 1)) && hasLetter(r, c + 1);
+                    const startsD = (r === 0 || !hasLetter(r - 1, c)) && hasLetter(r + 1, c);
+                    if (startsA || startsD) {
+                        p.words.forEach(w => {
+                            if ((w.dir === 'across' && startsA && w.row === r && w.col === c) || (w.dir === 'down' && startsD && w.row === r && w.col === c)) {
+                                if (!w.num) w.num = num;
+                            }
+                        });
+                        num++;
+                    }
+                }
+            }
+            for (let r = 0; r < p.rows; r++) {
+                for (let c = 0; c < p.cols; c++) {
+                    const cell = document.createElement('div');
+                    cell.className = 'cw-cell'; cell.dataset.r = r; cell.dataset.c = c;
+                    if (!hasLetter(r, c)) { cell.classList.add('block'); }
+                    else {
+                        const w = p.words.find(x => x.row === r && x.col === c);
+                        if (w && w.num) { const n = document.createElement('span'); n.className = 'num'; n.textContent = w.num; cell.appendChild(n); }
+                        const inp = document.createElement('input');
+                        inp.maxLength = 1; inp.readOnly = true; inp.value = cwInputs[r + ',' + c] || '';
+                        cell.appendChild(inp);
+                        cell.addEventListener('click', () => selectCWCell(r, c));
+                    }
+                    grid.appendChild(cell);
+                }
+            }
+            const across = p.words.filter(w => w.dir === 'across').sort((a, b) => a.num - b.num);
+            const down = p.words.filter(w => w.dir === 'down').sort((a, b) => a.num - b.num);
+            document.getElementById('cw-across').innerHTML = across.map(w => '<div class="cw-clue" data-w="' + w.word + '"><strong>' + w.num + '.</strong> ' + w.clue + '</div>').join('');
+            document.getElementById('cw-down').innerHTML = down.map(w => '<div class="cw-clue" data-w="' + w.word + '"><strong>' + w.num + '.</strong> ' + w.clue + '</div>').join('');
+            document.querySelectorAll('.cw-clue').forEach(el => {
+                el.addEventListener('click', () => {
+                    const w = p.words.find(x => x.word === el.dataset.w);
+                    cwActive = w; cwSelected = { r: w.row, c: w.col, dir: w.dir }; highlightCW();
+                });
+            });
+            if (!cwActive && across.length) { cwActive = across[0]; cwSelected = { r: across[0].row, c: across[0].col, dir: 'across' }; }
+            highlightCW();
+        }
+        function selectCWCell(r, c) {
+            const p = CW_PUZZLE;
+            const w = (cwSelected && p.words.find(x => x.dir === cwSelected.dir && cellInWord(r, c, x))) || p.words.find(x => cellInWord(r, c, x));
+            if (w) { cwActive = w; cwSelected = { r, c, dir: w.dir }; }
+            highlightCW();
+        }
+        function advanceCW(r, c, step) {
+            if (!cwSelected) return;
+            let nr = r, nc = c;
+            if (cwSelected.dir === 'across') nc += step; else nr += step;
+            if (cwActive && cellInWord(nr, nc, cwActive)) { cwSelected = { r: nr, c: nc, dir: cwSelected.dir }; highlightCW(); }
+        }
+        function highlightCW() {
+            document.querySelectorAll('.cw-cell').forEach(el => el.classList.remove('active', 'selected'));
+            if (cwActive) {
+                for (let i = 0; i < cwActive.word.length; i++) {
+                    const r = cwActive.dir === 'down' ? cwActive.row + i : cwActive.row;
+                    const c = cwActive.dir === 'across' ? cwActive.col + i : cwActive.col;
+                    const el = document.querySelector('#cw-grid .cw-cell[data-r="' + r + '"][data-c="' + c + '"]');
+                    if (el) el.classList.add('active');
+                }
+            }
+            if (cwSelected) {
+                const el = document.querySelector('#cw-grid .cw-cell[data-r="' + cwSelected.r + '"][data-c="' + cwSelected.c + '"]');
+                if (el) el.classList.add('selected');
+            }
+            document.querySelectorAll('.cw-clue').forEach(el => el.classList.toggle('active', cwActive && el.dataset.w === cwActive.word));
+        }
+
+        /* ==========================================================================
+           INIT
+           ========================================================================== */
+        loadState();
+        renderFlashcard();
+        renderQuiz();
+        renderFlow();
+        renderCrossword();
+        initVirtualKeyboard();
+    </script>
+</body>
+
+</html>
